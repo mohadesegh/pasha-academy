@@ -19,7 +19,8 @@ import { FAQ } from "@/data/content";
 import { SITE } from "@/lib/constants";
 import { Clock, PhoneCall, ShieldCheck } from "lucide-react";
 
-export const revalidate = 3600;
+// Rendered per request so the build never needs a database connection.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: { absolute: `${SITE.name} | ادامه تحصیل در ترکیه، اقامت تحصیلی و خوابگاه دانشجویی` },

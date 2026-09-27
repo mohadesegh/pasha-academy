@@ -3,7 +3,8 @@ import { db } from "@/lib/db";
 import { SERVICES } from "@/data/content";
 import { siteUrl } from "@/lib/utils";
 
-export const revalidate = 3600;
+// Rendered per request so the build never needs a database connection.
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();

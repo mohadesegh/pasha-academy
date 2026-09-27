@@ -14,9 +14,10 @@ type Props = { params: Promise<{ slug: string }> };
 
 export const revalidate = 3600;
 
-export async function generateStaticParams() {
-  const unis = await db.university.findMany({ where: { published: true }, select: { slug: true } });
-  return unis.map((u) => ({ slug: u.slug }));
+// Nothing is prerendered at build time (so the build never needs a database);
+// each page is rendered on first request and then cached for `revalidate` seconds.
+export function generateStaticParams() {
+  return [];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

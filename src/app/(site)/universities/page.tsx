@@ -6,7 +6,8 @@ import { JsonLd, breadcrumbLd } from "@/components/seo/json-ld";
 import { db } from "@/lib/db";
 import { siteUrl } from "@/lib/utils";
 
-export const revalidate = 3600;
+// Rendered per request so the build never needs a database connection.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "معرفی دانشگاه‌های ترکیه",
