@@ -1,0 +1,143 @@
+// Pasha Academy data model.
+// SQLite is used for local development. For production switch `provider` to "postgresql"
+// and point DATABASE_URL at your Postgres instance — no other changes are needed.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  /// STUDENT | AGENT | ADMIN
+  role         String   @default("STUDENT")
+  /// Only for agents: PENDING | APPROVED | SUSPENDED
+  agentStatus  String?
+  companyName  String?
+  city         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ownApplications   Application[] @relation("StudentApplications")
+  agentApplications Application[] @relation("AgentApplications")
+}
+
+model University {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  nameEn      String
+  city        String
+  /// PUBLIC | PRIVATE
+  type        String
+  founded     Int?
+  students    Int?
+  tuitionFrom Int?
+  /// Comma separated, e.g. "ترکی,انگلیسی"
+  languages   String
+  /// Comma separated faculty / program names
+  programs    String
+  summary     String
+  description String
+  website     String?
+  color       String   @default("#0B2A4A")
+  featured    Boolean  @default(false)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  applications Application[]
+}
+
+model Application {
+  id           String   @id @default(cuid())
+  /// Human friendly tracking code, e.g. PA-7K2Q9M
+  code         String   @unique
+  /// DORMITORY | ADMISSION | RESIDENCE
+  type         String
+  /// SUBMITTED | IN_REVIEW | NEEDS_ACTION | APPROVED | REJECTED
+  status       String   @default("SUBMITTED")
+
+  studentName  String
+  studentEmail String
+  studentPhone String
+  nationality  String
+  passportNo   String?
+  birthDate    String?
+
+  universityId String?
+  university   University? @relation(fields: [universityId], references: [id], onDelete: SetNull)
+  program      String?
+  degree       String?
+
+  dormCity     String?
+  roomType     String?
+  moveInDate   String?
+
+  notes        String?
+  adminNote    String?
+
+  studentId    String?
+  student      User?    @relation("StudentApplications", fields: [studentId], references: [id], onDelete: SetNull)
+  agentId      String?
+  agent        User?    @relation("AgentApplications", fields: [agentId], references: [id], onDelete: SetNull)
+
+  documents    Document[]
+  events       ApplicationEvent[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status])
+  @@index([studentId])
+  @@index([agentId])
+}
+
+model Document {
+  id            String   @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  /// PASSPORT | PHOTO | ACCEPTANCE | TRANSCRIPT | DIPLOMA | STUDENT_CERT | RESIDENCE | OTHER
+  kind          String
+  originalName  String
+  storedName    String   @unique
+  mimeType      String
+  size          Int
+  /// PENDING | APPROVED | REJECTED
+  status        String   @default("PENDING")
+  reviewNote    String?
+  reviewedAt    DateTime?
+  createdAt     DateTime @default(now())
+
+  @@index([applicationId])
+}
+
+model ApplicationEvent {
+  id            String   @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  message       String
+  actor         String
+  createdAt     DateTime @default(now())
+
+  @@index([applicationId])
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  service   String?
+  message   String?
+  handled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

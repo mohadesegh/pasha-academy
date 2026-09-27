@@ -1,0 +1,186 @@
+@import "tailwindcss";
+
+/* =========================================================
+   Pasha Academy — Design System
+   ---------------------------------------------------------
+   Navy      → trust, academia (primary, text, dark sections)
+   Crimson   → Türkiye, energy (primary CTAs only, used sparingly)
+   Gold      → Ottoman heritage, premium, success highlights
+   Turquoise → İznik tiles, Bosphorus (secondary accents, links)
+   Sand      → warm neutral page background
+   ========================================================= */
+
+@theme {
+  --font-sans: var(--font-vazir), ui-sans-serif, system-ui, sans-serif;
+
+  --color-navy-50: #eef3f9;
+  --color-navy-100: #d6e2f0;
+  --color-navy-200: #aec5e1;
+  --color-navy-300: #7a9fcb;
+  --color-navy-400: #4a78b0;
+  --color-navy-500: #2b5c96;
+  --color-navy-600: #1e487b;
+  --color-navy-700: #163a65;
+  --color-navy-800: #0f2d51;
+  --color-navy-900: #0b2340;
+  --color-navy-950: #06142a;
+
+  --color-crimson-50: #fff1f2;
+  --color-crimson-100: #fde0e2;
+  --color-crimson-200: #fbc2c6;
+  --color-crimson-400: #f0525b;
+  --color-crimson-500: #e30a17;
+  --color-crimson-600: #c40814;
+  --color-crimson-700: #9f0a14;
+
+  --color-gold-50: #fdf8ec;
+  --color-gold-100: #faefd3;
+  --color-gold-200: #f3dca3;
+  --color-gold-300: #eac677;
+  --color-gold-400: #deaf52;
+  --color-gold-500: #c9953a;
+  --color-gold-600: #a7772c;
+
+  --color-turquoise-50: #ecfbfa;
+  --color-turquoise-100: #d0f4f1;
+  --color-turquoise-300: #6fd8d0;
+  --color-turquoise-400: #33bfb6;
+  --color-turquoise-500: #129f98;
+  --color-turquoise-600: #0c7f7b;
+
+  --color-sand-50: #fdfbf7;
+  --color-sand-100: #f8f3ea;
+  --color-sand-200: #efe7d8;
+  --color-sand-300: #e2d6c1;
+
+  --color-ink: #0b1b30;
+  --color-muted: #5a6a80;
+  --color-line: #e8e1d4;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.75rem;
+
+  --shadow-soft: 0 1px 2px rgb(11 35 64 / 0.04), 0 8px 24px -8px rgb(11 35 64 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(11 35 64 / 0.05), 0 24px 48px -16px rgb(11 35 64 / 0.25);
+  --shadow-glow: 0 10px 40px -10px rgb(227 10 23 / 0.45);
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-spin-slow: spin 40s linear infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+/* RTL marquee: content moves to the right */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(50%); }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-sand-50 text-ink antialiased;
+    font-feature-settings: "ss01";
+  }
+  ::selection {
+    @apply bg-gold-200 text-navy-950;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-turquoise-500;
+  }
+  input, textarea, select, button {
+    font: inherit;
+  }
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.98];
+}
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn-primary {
+    @apply btn bg-crimson-500 text-white shadow-glow hover:bg-crimson-600 hover:-translate-y-0.5;
+  }
+  .btn-navy {
+    @apply btn bg-navy-900 text-white hover:bg-navy-800 hover:-translate-y-0.5;
+  }
+  .btn-gold {
+    @apply btn bg-gold-400 text-navy-950 hover:bg-gold-300 hover:-translate-y-0.5;
+  }
+  .btn-outline {
+    @apply btn border border-navy-200 bg-white text-navy-900 hover:border-navy-400 hover:bg-navy-50;
+  }
+  .btn-ghost-light {
+    @apply btn border border-white/25 bg-white/5 text-white backdrop-blur hover:bg-white/15;
+  }
+  .btn-sm {
+    @apply px-4 py-2 text-xs;
+  }
+
+  .card {
+    @apply rounded-2xl border border-line bg-white shadow-soft;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-semibold text-navy-900;
+  }
+  .input {
+    @apply w-full rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition focus:border-turquoise-400 focus:outline-none focus:ring-4 focus:ring-turquoise-100;
+  }
+  .input[aria-invalid="true"] {
+    @apply border-crimson-400 focus:ring-crimson-100;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full border border-gold-300/60 bg-gold-50 px-3 py-1 text-xs font-bold text-gold-600;
+  }
+  .section-title {
+    @apply text-3xl font-black leading-tight text-navy-950 sm:text-4xl;
+  }
+  .section-lead {
+    @apply mt-4 text-base leading-8 text-muted sm:text-lg;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-l from-gold-300 via-gold-200 to-white bg-clip-text text-transparent;
+  }
+
+  /* İznik-inspired 8-point star pattern */
+  .bg-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23deaf52' stroke-opacity='0.14' stroke-width='1'%3E%3Cpath d='M28 6l6 16 16 6-16 6-6 16-6-16-16-6 16-6z'/%3E%3Crect x='18' y='18' width='20' height='20' transform='rotate(45 28 28)'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  .bg-pattern-dark {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%230b2340' stroke-opacity='0.06' stroke-width='1'%3E%3Cpath d='M28 6l6 16 16 6-16 6-6 16-6-16-16-6 16-6z'/%3E%3Crect x='18' y='18' width='20' height='20' transform='rotate(45 28 28)'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .prose-fa p {
+    @apply mb-4 leading-8 text-navy-900/80;
+  }
+  .prose-fa h2 {
+    @apply mb-3 mt-8 text-xl font-extrabold text-navy-950;
+  }
+  .prose-fa ul {
+    @apply mb-4 list-disc space-y-2 pr-5 text-navy-900/80;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
