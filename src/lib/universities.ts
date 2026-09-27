@@ -2,6 +2,19 @@ import "server-only";
 import { cache } from "react";
 import { db } from "./db";
 
+/**
+ * Runs a read for a public page and returns `fallback` if the database is unreachable
+ * (e.g. DATABASE_URL not configured yet), so marketing pages still render instead of 500ing.
+ */
+export async function safeRead<T>(read: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await read();
+  } catch (err) {
+    console.error("[db] public read failed:", err);
+    return fallback;
+  }
+}
+
 const cardSelect = {
   id: true,
   slug: true,
@@ -17,13 +30,17 @@ const cardSelect = {
 } as const;
 
 export const getPublishedUniversities = cache(() =>
-  db.university.findMany({
-    where: { published: true },
-    select: cardSelect,
-    orderBy: [{ featured: "desc" }, { name: "asc" }],
-  }),
+  safeRead(
+    () =>
+      db.university.findMany({
+        where: { published: true },
+        select: cardSelect,
+        orderBy: [{ featured: "desc" }, { name: "asc" }],
+      }),
+    [],
+  ),
 );
 
 export const getUniversityBySlug = cache((slug: string) =>
-  db.university.findFirst({ where: { slug, published: true } }),
+  safeRead(() => db.university.findFirst({ where: { slug, published: true } }), null),
 );

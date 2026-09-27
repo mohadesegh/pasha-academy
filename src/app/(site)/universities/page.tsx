@@ -4,6 +4,7 @@ import { PageHero } from "@/components/layout/page-hero";
 import { UniversityExplorer } from "@/components/university/university-explorer";
 import { JsonLd, breadcrumbLd } from "@/components/seo/json-ld";
 import { db } from "@/lib/db";
+import { safeRead } from "@/lib/universities";
 import { siteUrl } from "@/lib/utils";
 
 // Rendered per request so the build never needs a database connection.
@@ -17,11 +18,15 @@ export const metadata: Metadata = {
 };
 
 export default async function UniversitiesPage() {
-  const universities = await db.university.findMany({
-    where: { published: true },
-    select: { slug: true, name: true, nameEn: true, city: true, type: true, tuitionFrom: true, languages: true, summary: true, color: true, programs: true },
-    orderBy: [{ featured: "desc" }, { name: "asc" }],
-  });
+  const universities = await safeRead(
+    () =>
+      db.university.findMany({
+        where: { published: true },
+        select: { slug: true, name: true, nameEn: true, city: true, type: true, tuitionFrom: true, languages: true, summary: true, color: true, programs: true },
+        orderBy: [{ featured: "desc" }, { name: "asc" }],
+      }),
+    [],
+  );
 
   return (
     <>

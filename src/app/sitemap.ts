@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
+import { safeRead } from "@/lib/universities";
 import { SERVICES } from "@/data/content";
 import { siteUrl } from "@/lib/utils";
 
@@ -26,7 +27,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  const universities = await db.university.findMany({ where: { published: true }, select: { slug: true, updatedAt: true } });
+  const universities = await safeRead(
+    () => db.university.findMany({ where: { published: true }, select: { slug: true, updatedAt: true } }),
+    [],
+  );
 
   return [
     ...staticPages,
