@@ -1,13 +1,12 @@
 // Pasha Academy data model.
-// SQLite is used for local development. For production switch `provider` to "postgresql"
-// and point DATABASE_URL at your Postgres instance — no other changes are needed.
+// PostgreSQL everywhere (Neon / Vercel Postgres in production, local Postgres or a Neon branch in dev).
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
