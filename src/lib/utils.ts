@@ -43,6 +43,8 @@ export function splitList(value: string | null | undefined) {
 }
 
 export function siteUrl(path = "") {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  let base = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000";
+  if (!/^https?:\/\//i.test(base)) base = `https://${base}`;
+  base = base.replace(/\/$/, "");
   return `${base}${path}`;
 }
