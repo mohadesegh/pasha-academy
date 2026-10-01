@@ -59,12 +59,15 @@ export function StaggerItem({ children, className }: { children: React.ReactNode
   );
 }
 
-/** Counts up from zero when scrolled into view, rendered in Persian digits. */
-export function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
+/** Counts up from zero when scrolled into view, rendered in Persian digits unless `latin`. */
+export function Counter({ to, suffix = "", latin = false }: { to: number; suffix?: string; latin?: boolean }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true });
   const value = useMotionValue(0);
-  const text = useTransform(value, (v) => toFa(Math.round(v).toLocaleString("en-US")) + suffix);
+  const text = useTransform(value, (v) => {
+    const n = Math.round(v).toLocaleString("en-US");
+    return (latin ? n : toFa(n)) + suffix;
+  });
 
   useEffect(() => {
     if (!inView) return;

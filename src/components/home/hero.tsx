@@ -1,202 +1,140 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useMotionValue, useSpring, useTransform, type MotionValue } from "framer-motion";
-import { ArrowLeft, BadgeCheck, BedDouble, GraduationCap, IdCard, Sparkles, Star } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowLeft, ArrowRight, Award, BadgeCheck, BedDouble, Check, GraduationCap, MessageCircle } from "lucide-react";
+import { LogoMark } from "@/components/ui/logo";
+import { useLocale } from "@/components/i18n/locale-provider";
+import { SITE } from "@/lib/constants";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const CARDS = [
-  { icon: GraduationCap, title: "نامه پذیرش صادر شد", sub: "دانشگاه فنی استانبول — مهندسی کامپیوتر", tone: "bg-crimson-500", pos: "top-4 right-0 sm:right-6", depth: 30, delay: 0.5 },
-  { icon: BedDouble, title: "خوابگاه رزرو شد", sub: "شیشلی، استانبول — اتاق دو نفره", tone: "bg-gold-400", pos: "top-[46%] left-0 lg:-left-12", depth: -40, delay: 0.7 },
-  { icon: IdCard, title: "کارت اقامت تحصیلی", sub: "Öğrenci İkamet İzni — تایید شد", tone: "bg-turquoise-500", pos: "bottom-2 right-4 sm:right-14", depth: 22, delay: 0.9 },
-];
-
-function Parallax({ sx, sy, depth, className, children, ...rest }: {
-  sx: MotionValue<number>;
-  sy: MotionValue<number>;
-  depth: number;
-  className?: string;
-  children: React.ReactNode;
-} & React.ComponentProps<typeof motion.div>) {
-  const x = useTransform(sx, (v) => v * depth);
-  const y = useTransform(sy, (v) => v * depth);
-  return (
-    <motion.div className={className} style={{ x, y }} {...rest}>
-      {children}
-    </motion.div>
-  );
-}
-
-const HEADLINE = ["آینده‌ات", "را", "در", "ترکیه", "بساز"];
-
+/** Light, accaco-style hero: headline + CTAs on one side, the golden emblem in orbit on the other. */
 export function Hero() {
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const sx = useSpring(mx, { stiffness: 60, damping: 15 });
-  const sy = useSpring(my, { stiffness: 60, damping: 15 });
-
-  function onMove(e: React.MouseEvent<HTMLElement>) {
-    const r = e.currentTarget.getBoundingClientRect();
-    mx.set((e.clientX - r.left) / r.width - 0.5);
-    my.set((e.clientY - r.top) / r.height - 0.5);
-  }
+  const { locale, t } = useLocale();
+  const Arrow = locale === "fa" ? ArrowLeft : ArrowRight;
+  const wa = `https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(t.common.whatsappGeneral)}`;
+  const chips = [
+    { icon: GraduationCap, text: t.hero.orbit[0], pos: "top-[12%] ltr:left-[4%] rtl:right-[4%]", delay: 0.6 },
+    { icon: Award, text: t.hero.orbit[1], pos: "top-[48%] ltr:right-0 rtl:left-0", delay: 0.8 },
+    { icon: BedDouble, text: t.hero.orbit[2], pos: "bottom-[8%] ltr:left-[12%] rtl:right-[12%]", delay: 1 },
+  ];
 
   return (
-    <section onMouseMove={onMove} className="relative isolate overflow-hidden bg-navy-950 pb-24 pt-32 text-white lg:pb-32 lg:pt-40">
-      <div className="bg-pattern absolute inset-0 -z-10" aria-hidden />
-      <motion.div
-        aria-hidden
-        className="absolute -right-40 -top-40 -z-10 h-[520px] w-[520px] rounded-full bg-crimson-500/25 blur-3xl"
-        animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0.9, 0.6] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        aria-hidden
-        className="absolute -bottom-52 -left-32 -z-10 h-[560px] w-[560px] rounded-full bg-turquoise-500/20 blur-3xl"
-        animate={{ scale: [1.1, 1, 1.1] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <div className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-t from-navy-950 to-transparent" aria-hidden />
+    <section className="relative isolate overflow-hidden pb-20 pt-32 lg:pb-28 lg:pt-40">
+      <div className="absolute -top-40 left-1/2 -z-10 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-gold-200/40 blur-3xl dark:bg-gold-500/10" aria-hidden />
+      <div className="bg-pattern-dark absolute inset-0 -z-10 opacity-60 dark:opacity-0" aria-hidden />
 
-      <div className="container-x grid items-center gap-16 lg:grid-cols-[1.1fr_1fr]">
+      <div className="container-x grid items-center gap-14 lg:grid-cols-[1.1fr_1fr]">
         <div>
           <motion.span
-            className="eyebrow border-white/15 bg-white/5 text-gold-300"
+            className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-surface px-4 py-1.5 text-xs font-bold text-navy-900 shadow-soft dark:border-white/10"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease }}
           >
-            <Sparkles className="h-3.5 w-3.5" />
-            مشاوره تخصصی تحصیل، اقامت و خوابگاه در ترکیه
+            <span className="h-2 w-2 animate-pulse rounded-full bg-gold-500" />
+            {t.hero.eyebrow}
           </motion.span>
 
-          <h1 className="mt-6 text-5xl font-black leading-[1.25] sm:text-6xl lg:text-7xl">
-            {HEADLINE.map((w, i) => (
+          <h1 className="mt-6 text-4xl font-black leading-[1.3] text-navy-950 sm:text-6xl lg:text-[4.2rem]">
+            {t.hero.title.map((line, i) => (
               <motion.span
-                key={i}
-                className={`ml-3 inline-block ${w === "ترکیه" ? "text-gradient" : ""}`}
-                initial={{ opacity: 0, y: 40, rotateX: -60 }}
-                animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                transition={{ duration: 0.8, delay: 0.1 + i * 0.08, ease }}
+                key={line}
+                className={`block ${i === t.hero.title.length - 1 ? "text-gradient" : ""}`}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.1 + i * 0.1, ease }}
               >
-                {w}
+                {line}
               </motion.span>
             ))}
           </h1>
 
           <motion.p
-            className="mt-6 max-w-xl text-lg leading-9 text-white/70"
+            className="mt-6 max-w-xl text-lg leading-9 text-muted"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.55, ease }}
+            transition={{ duration: 0.7, delay: 0.45, ease }}
           >
-            از انتخاب بهترین دانشگاه دولتی یا خصوصی تا رزرو خوابگاه و گرفتن کارت اقامت؛ پاشا آکادمی تمام مسیر
-            تحصیل شما در ترکیه را هموار می‌کند — شفاف، سریع و کاملا آنلاین.
+            {t.hero.lead}
           </motion.p>
 
           <motion.div
-            className="mt-10 flex flex-wrap gap-3"
+            className="mt-9 flex flex-wrap gap-3"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.7, ease }}
+            transition={{ duration: 0.7, delay: 0.6, ease }}
           >
-            <Link href="/contact#consult" className="btn-primary px-8 py-4 text-base">
-              دریافت مشاوره رایگان
-              <ArrowLeft className="h-5 w-5" />
+            <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-primary px-7 py-4 text-base">
+              {t.hero.ctaPrimary}
+              <Arrow className="h-5 w-5" />
+            </a>
+            <Link href="/programs" className="btn-navy px-7 py-4 text-base">
+              {t.hero.ctaSecondary}
             </Link>
-            <Link href="/universities" className="btn-ghost-light px-8 py-4 text-base">
-              مشاهده دانشگاه‌ها
-            </Link>
+            <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline px-6 py-4 text-base">
+              <MessageCircle className="h-5 w-5 text-[#25D366]" />
+              {t.hero.ctaWhatsapp}
+            </a>
           </motion.div>
 
-          <motion.div
-            className="mt-12 flex flex-wrap items-center gap-6 text-sm text-white/60"
+          <motion.ul
+            className="mt-8 flex max-w-xl flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-navy-800"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
+            transition={{ delay: 0.85 }}
           >
-            <div className="flex -space-x-3 space-x-reverse">
-              {["#e30a17", "#deaf52", "#129f98", "#4a78b0"].map((c, i) => (
-                <span key={i} className="grid h-10 w-10 place-items-center rounded-full border-2 border-navy-950 text-xs font-black" style={{ background: c }}>
-                  {["س", "ا", "ن", "م"][i]}
-                </span>
-              ))}
-            </div>
-            <div>
-              <div className="flex gap-0.5 text-gold-400">
-                {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
-              </div>
-              <p className="mt-1">بیش از ۲۴۰۰ دانشجوی موفق در ترکیه</p>
-            </div>
-          </motion.div>
+            {t.hero.checklist.map((c) => (
+              <li key={c} className="flex items-center gap-1.5">
+                <Check className="h-4 w-4 text-gold-500" strokeWidth={3} />
+                {c}
+              </li>
+            ))}
+          </motion.ul>
         </div>
 
-        {/* Visual */}
-        <div className="relative mx-auto h-[440px] w-full max-w-lg sm:h-[500px]" aria-hidden>
+        {/* Emblem in orbit */}
+        <div className="relative mx-auto aspect-square w-full max-w-[480px]" aria-hidden>
+          {[100, 78, 56].map((size, i) => (
+            <motion.div
+              key={size}
+              className="absolute inset-0 m-auto rounded-full border border-gold-400/30 dark:border-gold-400/20"
+              style={{ width: `${size}%`, height: `${size}%` }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1, rotate: i % 2 ? -360 : 360 }}
+              transition={{ opacity: { duration: 0.8, delay: 0.2 + i * 0.1 }, scale: { duration: 0.8, delay: 0.2 + i * 0.1 }, rotate: { duration: 50 + i * 15, repeat: Infinity, ease: "linear" } }}
+            >
+              <span className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-gold-400 shadow-[0_0_16px_rgba(222,175,82,0.9)]" />
+            </motion.div>
+          ))}
           <motion.div
-            className="absolute inset-0 m-auto h-[340px] w-[340px] rounded-full border border-dashed border-gold-400/30 sm:h-[420px] sm:w-[420px]"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-          >
-            {["استانبول", "آنکارا", "ازمیر", "آنتالیا"].map((city, i) => (
-              <span
-                key={city}
-                className="absolute rounded-full border border-white/10 bg-navy-800/80 px-3 py-1 text-xs font-bold text-gold-200 backdrop-blur"
-                style={{
-                  top: `${50 - 50 * Math.cos((i * Math.PI) / 2)}%`,
-                  left: `${50 + 50 * Math.sin((i * Math.PI) / 2)}%`,
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                {city}
-              </span>
-            ))}
-          </motion.div>
-
-          <Parallax
-            sx={sx}
-            sy={sy}
-            depth={-20}
-            className="absolute inset-0 m-auto grid h-52 w-52 place-items-center rounded-[2.5rem] bg-gradient-to-br from-navy-700 to-navy-900 shadow-lift ring-1 ring-white/10"
-            initial={{ scale: 0.6, opacity: 0, rotate: -20 }}
-            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            className="absolute inset-0 m-auto grid h-[42%] w-[42%] place-items-center rounded-full bg-surface shadow-lift ring-1 ring-gold-300/50"
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1, delay: 0.3, ease }}
           >
-            <svg viewBox="0 0 100 100" className="h-32 w-32">
-              <mask id="hero-crescent">
-                <rect width="100" height="100" fill="white" />
-                <circle cx="53" cy="50" r="22" fill="black" />
-              </mask>
-              <circle cx="43" cy="50" r="27" fill="#deaf52" mask="url(#hero-crescent)" />
-              <path d="M70 40l3 7.4 8 .6-6.1 5.2 1.9 7.8-6.8-4.2-6.8 4.2 1.9-7.8L59 48l8-.6z" fill="#e30a17" />
-            </svg>
-          </Parallax>
+            <LogoMark className="h-[78%] w-[78%] drop-shadow-[0_10px_24px_rgba(201,149,58,0.45)]" />
+          </motion.div>
 
-          {CARDS.map((c) => (
-            <Parallax
-              key={c.title}
-              sx={sx}
-              sy={sy}
-              depth={c.depth}
-              className={`absolute ${c.pos} w-64 sm:w-72`}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: c.delay, ease }}
+          {chips.map((c) => (
+            <motion.div
+              key={c.text}
+              className={`absolute ${c.pos}`}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: c.delay, ease }}
             >
-              <div className="animate-float flex items-center gap-3 rounded-2xl border border-white/15 bg-navy-800/85 p-4 shadow-lift backdrop-blur-xl" style={{ animationDelay: `${c.delay}s` }}>
-                <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${c.tone} text-white`}>
-                  <c.icon className="h-5 w-5" />
+              <div className="animate-float flex items-center gap-2.5 rounded-2xl border border-white/70 bg-surface/90 px-4 py-3 shadow-lift backdrop-blur dark:border-white/10" style={{ animationDelay: `${c.delay}s` }}>
+                <span className="grid h-9 w-9 place-items-center rounded-xl bg-navy-950 text-gold-300">
+                  <c.icon className="h-4 w-4" />
                 </span>
-                <div className="min-w-0">
-                  <p className="flex items-center gap-1 text-sm font-extrabold">
-                    {c.title}
-                    <BadgeCheck className="h-4 w-4 text-turquoise-300" />
-                  </p>
-                  <p className="truncate text-xs text-white/60">{c.sub}</p>
-                </div>
+                <span className="flex items-center gap-1 text-sm font-extrabold text-navy-950">
+                  {c.text}
+                  <BadgeCheck className="h-4 w-4 text-gold-500" />
+                </span>
               </div>
-            </Parallax>
+            </motion.div>
           ))}
         </div>
       </div>

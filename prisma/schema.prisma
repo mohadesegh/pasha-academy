@@ -54,18 +54,20 @@ model University {
   updatedAt   DateTime @updatedAt
 
   applications Application[]
+  offerings    Program[]
 }
 
 model Application {
   id           String   @id @default(cuid())
   /// Human friendly tracking code, e.g. PA-7K2Q9M
   code         String   @unique
-  /// DORMITORY | ADMISSION | RESIDENCE
+  /// DORMITORY | ADMISSION
   type         String
   /// SUBMITTED | IN_REVIEW | NEEDS_ACTION | APPROVED | REJECTED
   status       String   @default("SUBMITTED")
 
   studentName  String
+  motherName   String?
   studentEmail String
   studentPhone String
   nationality  String
@@ -76,6 +78,8 @@ model Application {
   university   University? @relation(fields: [universityId], references: [id], onDelete: SetNull)
   program      String?
   degree       String?
+  /// Pasha Academy scholarship quota used for this application (percent off tuition), null = none
+  scholarshipPercent Int?
 
   dormCity     String?
   roomType     String?
@@ -104,7 +108,7 @@ model Document {
   id            String   @id @default(cuid())
   applicationId String
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  /// PASSPORT | PHOTO | ACCEPTANCE | TRANSCRIPT | DIPLOMA | STUDENT_CERT | RESIDENCE | OTHER
+  /// See DOC_KINDS in src/lib/constants.ts
   kind          String
   originalName  String
   storedName    String   @unique
@@ -139,4 +143,37 @@ model Lead {
   message   String?
   handled   Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+/// A study program with its tuition. Prices are USD.
+model Program {
+  id               String     @id @default(cuid())
+  universityId     String
+  university       University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  name             String
+  nameEn           String?
+  faculty          String?
+  /// ASSOCIATE | BACHELOR | MASTER | PHD
+  degree           String
+  /// TR | EN
+  language         String
+  durationYears    Int
+  /// Yearly tuition when paying term by term
+  tuition          Int
+  /// Discounted total when the whole course is paid upfront to the university
+  cashTotal        Int?
+  deposit          Int?
+  /// Yearly fee of the preparatory language year (0 = not needed / free)
+  prepFee          Int?
+  /// Total price of a Pasha Academy 100% scholarship seat for the whole course (null = no scholarship seat)
+  scholarshipPrice Int?
+  active           Boolean    @default(true)
+  /// Placeholder data shown with a sample label until real prices are imported
+  sample           Boolean    @default(false)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([universityId])
+  @@index([degree])
+  @@index([tuition])
 }

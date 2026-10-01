@@ -1,9 +1,9 @@
-import { AlertTriangle, CalendarDays, Download, ExternalLink, FileText, History, ImageIcon, MessageSquareText, PartyPopper } from "lucide-react";
-import { StatusBadge } from "@/components/ui/badge";
+import { AlertTriangle, Award, CalendarDays, Download, ExternalLink, FileText, History, ImageIcon, MessageSquareText, PartyPopper, Receipt } from "lucide-react";
+import { ScholarshipBadge, StatusBadge } from "@/components/ui/badge";
 import { DocDelete, DocReview, StatusPanel, UploadMore } from "./application-actions";
 import type { ApplicationWithRelations } from "@/lib/applications";
 import { APP_STATUSES, APP_TYPES, DOC_KINDS, DOC_STATUSES, REQUIRED_DOCS, type AppType, type DocKind } from "@/lib/constants";
-import { formatBytes, formatDate, formatDateTime } from "@/lib/utils";
+import { formatBytes, formatDate, formatDateTime, toFa } from "@/lib/utils";
 import type { Role } from "@/lib/session";
 
 export function ApplicationDetail({ app, viewer, created }: { app: ApplicationWithRelations; viewer: Role; created?: boolean }) {
@@ -14,9 +14,12 @@ export function ApplicationDetail({ app, viewer, created }: { app: ApplicationWi
   const uploadedKinds = new Set(app.documents.filter((d) => d.status !== "REJECTED").map((d) => d.kind));
   const missing = REQUIRED_DOCS[type]?.filter((k) => !uploadedKinds.has(k)) ?? [];
   const rejected = app.documents.filter((d) => d.status === "REJECTED");
+  const finalAcceptance = app.documents.filter((d) => d.kind === "FINAL_ACCEPTANCE");
+  const receipts = app.documents.filter((d) => d.kind === "PAYMENT_RECEIPT");
 
   const info: [string, string | null | undefined][] = [
     ["نام متقاضی", app.studentName],
+    ["نام مادر", app.motherName],
     ["ایمیل", app.studentEmail],
     ["تلفن", app.studentPhone],
     ["ملیت", app.nationality],
@@ -25,6 +28,7 @@ export function ApplicationDetail({ app, viewer, created }: { app: ApplicationWi
     ["دانشگاه", app.university?.name],
     ["مقطع", app.degree],
     ["رشته", app.program],
+    ["سهمیه بورسیه پاشا آکادمی", app.scholarshipPercent ? `${toFa(app.scholarshipPercent)}٪` : null],
     ["شهر خوابگاه", app.dormCity],
     ["نوع اتاق", app.roomType],
     ["تاریخ ورود", app.moveInDate],
@@ -54,8 +58,31 @@ export function ApplicationDetail({ app, viewer, created }: { app: ApplicationWi
             <span className="inline-flex items-center gap-1"><CalendarDays className="h-4 w-4" />{formatDate(app.createdAt)}</span>
           </p>
         </div>
-        <StatusBadge map={APP_STATUSES} value={app.status} />
+        <div className="flex flex-wrap items-center gap-2">
+          {app.scholarshipPercent && <ScholarshipBadge percent={app.scholarshipPercent} />}
+          <StatusBadge map={APP_STATUSES} value={app.status} />
+        </div>
       </div>
+
+      {!isAdmin && finalAcceptance.length > 0 && (
+        <div className="flex flex-col gap-4 rounded-2xl bg-gradient-to-l from-gold-300 to-gold-500 p-5 text-navy-950 shadow-lift sm:flex-row sm:items-center">
+          <Award className="h-9 w-9 shrink-0" />
+          <div className="flex-1">
+            <p className="font-extrabold">پذیرش نهایی دانشگاه صادر شد</p>
+            <p className="text-sm text-navy-950/75">
+              فایل پذیرش نهایی را دریافت کنید{receipts.length === 0 ? " و پس از پرداخت، فیش واریزی را بارگذاری کنید." : "."}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {finalAcceptance.map((d) => (
+              <a key={d.id} href={`/api/documents/${d.id}/file?download=1`} className="btn btn-sm bg-navy-950 text-white hover:bg-navy-800">
+                <Download className="h-4 w-4" />
+                دانلود پذیرش نهایی
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!isAdmin && app.adminNote && (
         <div className="flex gap-3 rounded-2xl border border-gold-200 bg-gold-50 p-5">
@@ -160,7 +187,27 @@ export function ApplicationDetail({ app, viewer, created }: { app: ApplicationWi
             </section>
           )}
 
-          {!closed && (
+          {isAdmin && type === "ADMISSION" && (
+            <section className="card border-2 border-gold-300 p-6">
+              <h2 className="flex items-center gap-2 text-lg font-extrabold text-navy-950"><Award className="h-5 w-5 text-gold-500" />ارسال پذیرش نهایی</h2>
+              <p className="mb-4 mt-1 text-xs leading-6 text-muted">
+                فایل پذیرش نهایی دانشگاه را بارگذاری کنید تا در پنل {app.agent ? "نماینده" : "دانشجو"} برای دانلود نمایش داده شود.
+              </p>
+              <UploadMore applicationId={app.id} kinds={["FINAL_ACCEPTANCE"]} buttonLabel="ارسال پذیرش نهایی" />
+            </section>
+          )}
+
+          {viewer === "AGENT" && app.status !== "REJECTED" && (
+            <section className="card p-6">
+              <h2 className="flex items-center gap-2 text-lg font-extrabold text-navy-950"><Receipt className="h-5 w-5 text-turquoise-500" />بارگذاری فیش واریزی</h2>
+              <p className="mb-4 mt-1 text-xs leading-6 text-muted">
+                {receipts.length > 0 ? `${toFa(receipts.length)} فیش بارگذاری شده است. در صورت نیاز فیش دیگری اضافه کنید.` : "پس از پرداخت هزینه، تصویر یا PDF فیش واریزی را اینجا بارگذاری کنید."}
+              </p>
+              <UploadMore applicationId={app.id} kinds={["PAYMENT_RECEIPT"]} buttonLabel="بارگذاری فیش" />
+            </section>
+          )}
+
+          {(isAdmin || !closed) && (
             <section className="card p-6">
               <h2 className="mb-4 text-lg font-extrabold text-navy-950">{isAdmin ? "افزودن مدرک" : "بارگذاری / اصلاح مدرک"}</h2>
               <UploadMore applicationId={app.id} suggestKind={(rejected[0]?.kind ?? missing[0]) as DocKind | undefined} />

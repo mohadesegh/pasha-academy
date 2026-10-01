@@ -1,4 +1,5 @@
-import { cn } from "@/lib/utils";
+import { Award } from "lucide-react";
+import { cn, toFa } from "@/lib/utils";
 import type { Tone } from "@/lib/constants";
 
 const tones: Record<Tone, string> = {
@@ -27,4 +28,14 @@ export function Badge({ tone = "info", children, className }: { tone?: Tone; chi
 export function StatusBadge({ map, value }: { map: Record<string, { label: string; tone: Tone }>; value: string }) {
   const item = map[value] ?? { label: value, tone: "muted" as Tone };
   return <Badge tone={item.tone}>{item.label}</Badge>;
+}
+
+/** Marks an application that uses one of Pasha Academy's scholarship quotas. */
+export function ScholarshipBadge({ percent }: { percent: number }) {
+  return (
+    <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-gradient-to-l from-gold-300 to-gold-400 px-2.5 py-1 text-xs font-extrabold text-navy-950">
+      <Award className="h-3.5 w-3.5" />
+      سهمیه بورسیه {toFa(percent)}٪
+    </span>
+  );
 }

@@ -12,7 +12,8 @@ function safeNext(next: string | null) {
   return next && next.startsWith("/") && !next.startsWith("//") ? next : null;
 }
 
-export function AuthForm({ mode }: { mode: Mode }) {
+/** `audience` only changes the sign-up links on the login form; the account role decides the panel. */
+export function AuthForm({ mode, audience = "student" }: { mode: Mode; audience?: "student" | "agent" }) {
   const router = useRouter();
   const params = useSearchParams();
   const [pending, setPending] = useState(false);
@@ -95,7 +96,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
       <p className="text-center text-sm text-muted">
         {mode === "login" ? (
-          <>حساب ندارید؟ <Link href={`/register${nextQuery}`} className="font-bold text-crimson-500 hover:underline">ثبت‌نام دانشجو</Link> · <Link href="/agents#join" className="font-bold text-navy-700 hover:underline">درخواست نمایندگی</Link></>
+          audience === "agent" ? (
+          <>هنوز همکار ما نیستید؟ <Link href="/agents#join" className="font-bold text-crimson-500 hover:underline">ثبت درخواست نمایندگی</Link></>
+        ) : (
+          <>حساب ندارید؟ <Link href={`/register${nextQuery}`} className="font-bold text-crimson-500 hover:underline">ثبت‌نام دانشجو</Link></>
+        )
         ) : (
           <>قبلا ثبت‌نام کرده‌اید؟ <Link href={`/login${nextQuery}`} className="font-bold text-crimson-500 hover:underline">وارد شوید</Link></>
         )}

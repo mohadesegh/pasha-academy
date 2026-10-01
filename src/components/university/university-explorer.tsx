@@ -9,13 +9,24 @@ import { cn, splitList, toFa } from "@/lib/utils";
 
 type Uni = UniversityCardData & { programs: string };
 
-export function UniversityExplorer({ universities }: { universities: Uni[] }) {
+/** `hrefBase` lets the portals keep users inside their panel; `inPanel` drops the hero overlap. */
+export function UniversityExplorer({
+  universities,
+  hrefBase = "/universities",
+  inPanel = false,
+}: {
+  universities: Uni[];
+  hrefBase?: string;
+  inPanel?: boolean;
+}) {
   const params = useSearchParams();
   const [q, setQ] = useState(params.get("q") ?? "");
   const [city, setCity] = useState("all");
   const [type, setType] = useState<"all" | "PUBLIC" | "PRIVATE">("all");
 
   const cities = useMemo(() => [...new Set(universities.map((u) => u.city))], [universities]);
+  // Only offer the public / private toggle when both kinds are actually listed.
+  const hasBothTypes = useMemo(() => new Set(universities.map((u) => u.type)).size > 1, [universities]);
 
   const results = useMemo(() => {
     const term = q.trim().toLowerCase();
@@ -36,7 +47,7 @@ export function UniversityExplorer({ universities }: { universities: Uni[] }) {
 
   return (
     <div>
-      <div className="card relative z-10 -mt-16 space-y-5 p-5 sm:p-6">
+      <div className={cn("card relative z-10 space-y-5 p-5 sm:p-6", !inPanel && "-mt-16")}>
         <label className="relative block">
           <span className="sr-only">جستجوی دانشگاه یا رشته</span>
           <Search className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted" />
@@ -54,12 +65,14 @@ export function UniversityExplorer({ universities }: { universities: Uni[] }) {
             <button type="button" key={c} className={chip(city === c)} onClick={() => setCity(c)}>{c}</button>
           ))}
         </div>
+        {hasBothTypes && (
         <div className="flex flex-wrap items-center gap-2">
           <span className="ml-2 text-sm font-bold text-muted">نوع:</span>
           {([["all", "همه"], ["PUBLIC", "دولتی"], ["PRIVATE", "خصوصی"]] as const).map(([v, l]) => (
             <button type="button" key={v} className={chip(type === v)} onClick={() => setType(v)}>{l}</button>
           ))}
         </div>
+        )}
       </div>
 
       <p className="mt-8 text-sm text-muted" aria-live="polite">
@@ -83,7 +96,7 @@ export function UniversityExplorer({ universities }: { universities: Uni[] }) {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.25 }}
               >
-                <UniversityCard u={u} />
+                <UniversityCard u={u} href={`${hrefBase}/${u.slug}`} />
               </motion.li>
             ))}
           </AnimatePresence>

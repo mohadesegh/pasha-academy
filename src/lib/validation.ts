@@ -1,5 +1,12 @@
 import { z } from "zod";
-import { APP_TYPE_KEYS, APP_STATUS_KEYS, DOC_KIND_KEYS } from "./constants";
+import {
+  APP_TYPE_KEYS,
+  APP_STATUS_KEYS,
+  DOC_KIND_KEYS,
+  PROGRAM_DEGREE_KEYS,
+  PROGRAM_LANGUAGE_KEYS,
+  SCHOLARSHIP_OPTIONS,
+} from "./constants";
 
 const phone = z.string().trim().min(8, "شماره تماس معتبر نیست").max(20, "شماره تماس معتبر نیست");
 const email = z.string().trim().toLowerCase().email("ایمیل معتبر نیست");
@@ -30,6 +37,7 @@ export const loginSchema = z.object({
 export const applicationSchema = z.object({
   type: z.enum(APP_TYPE_KEYS as [string, ...string[]], { message: "نوع درخواست معتبر نیست" }),
   studentName: z.string().trim().min(3, "نام دانشجو را وارد کنید").max(80),
+  motherName: optionalText(80),
   studentEmail: email,
   studentPhone: phone,
   nationality: z.string().trim().min(2, "ملیت را وارد کنید").max(40),
@@ -38,6 +46,10 @@ export const applicationSchema = z.object({
   universityId: optionalText(40),
   program: optionalText(100),
   degree: optionalText(40),
+  scholarshipPercent: z.preprocess(
+    (v) => (v === "" || v === undefined || v === null ? null : Number(v)),
+    z.number().refine((n) => (SCHOLARSHIP_OPTIONS as readonly number[]).includes(n), "سهمیه بورسیه معتبر نیست").nullable(),
+  ),
   dormCity: optionalText(40),
   roomType: optionalText(40),
   moveInDate: optionalText(20),
@@ -86,6 +98,29 @@ export const universitySchema = z.object({
   color: z.string().trim().regex(/^#[0-9a-fA-F]{6}$/, "رنگ باید به فرمت هگز باشد"),
   featured: z.boolean().optional(),
   published: z.boolean().optional(),
+});
+
+export const programSchema = z.object({
+  universityId: z.string().trim().min(1, "دانشگاه را انتخاب کنید"),
+  name: z.string().trim().min(2, "نام رشته را وارد کنید").max(160),
+  nameEn: optionalText(160),
+  faculty: optionalText(120),
+  degree: z.enum(PROGRAM_DEGREE_KEYS as [string, ...string[]], { message: "مقطع معتبر نیست" }),
+  language: z.enum(PROGRAM_LANGUAGE_KEYS as [string, ...string[]], { message: "زبان تدریس معتبر نیست" }),
+  durationYears: z.coerce
+    .number({ message: "مدت تحصیل را وارد کنید" })
+    .int("مدت تحصیل باید عدد صحیح باشد")
+    .min(1, "مدت تحصیل حداقل ۱ سال باشد")
+    .max(8, "مدت تحصیل حداکثر ۸ سال باشد"),
+  tuition: z.preprocess(
+    (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+    z.number({ message: "شهریه سالانه را وارد کنید" }).int("شهریه باید عدد صحیح باشد").min(0, "شهریه نمی‌تواند منفی باشد"),
+  ),
+  cashTotal: optionalInt,
+  deposit: optionalInt,
+  prepFee: optionalInt,
+  scholarshipPrice: optionalInt,
+  active: z.boolean().optional(),
 });
 
 export function firstError(error: z.ZodError) {

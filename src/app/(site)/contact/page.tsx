@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   const items = [
     { icon: Phone, label: "تلفن", value: SITE.phone, href: `tel:${SITE.phone.replace(/\s/g, "")}`, ltr: true },
-    { icon: MessageCircle, label: "واتساپ", value: SITE.phone, href: `https://wa.me/${SITE.whatsapp}`, ltr: true },
+    { icon: MessageCircle, label: "واتساپ", value: SITE.whatsappDisplay, href: `https://wa.me/${SITE.whatsapp}`, ltr: true },
     { icon: Mail, label: "ایمیل", value: SITE.email, href: `mailto:${SITE.email}`, ltr: true },
     { icon: InstagramIcon, label: "اینستاگرام", value: `@${SITE.instagram}`, href: `https://instagram.com/${SITE.instagram}`, ltr: true },
     { icon: MapPin, label: "آدرس دفتر", value: SITE.address },

@@ -48,7 +48,7 @@ export default function DormitoryPage() {
             <Upload className="h-5 w-5" />
             ثبت درخواست و آپلود مدارک
           </Link>
-          <Link href="/login" className="btn-ghost-light px-8 py-4 text-base">پیگیری درخواست</Link>
+          <Link href="/login" className="btn-outline px-8 py-4 text-base">پیگیری درخواست</Link>
         </div>
       </PageHero>
 

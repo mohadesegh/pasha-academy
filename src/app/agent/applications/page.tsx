@@ -13,7 +13,7 @@ export default async function AgentApplicationsPage({ searchParams }: Props) {
   const user = await requireRole("AGENT");
   const sp = await searchParams;
   const rows = await db.application.findMany({
-    where: { agentId: user.id, ...buildApplicationWhere(sp) },
+    where: { ...buildApplicationWhere(sp), agentId: user.id },
     select: appRowSelect,
     orderBy: { createdAt: "desc" },
     take: 200,

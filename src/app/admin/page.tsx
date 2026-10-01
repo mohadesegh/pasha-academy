@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, FileClock, FolderKanban, Inbox, Users } from "lucide-react";
+import { AlertTriangle, Award, FileClock, FolderKanban, Inbox, Users } from "lucide-react";
 import { PageTitle, StatCard } from "@/components/portal/portal-shell";
 import { ApplicationsTable, appRowSelect } from "@/components/portal/applications-table";
 import { requireRole } from "@/lib/auth";
@@ -9,7 +9,7 @@ import { toFa } from "@/lib/utils";
 
 export default async function AdminDashboard() {
   await requireRole("ADMIN");
-  const [total, pendingDocs, needsAction, pendingAgents, newLeads, byType, queue] = await Promise.all([
+  const [total, pendingDocs, needsAction, pendingAgents, newLeads, byType, queue, scholarships] = await Promise.all([
     db.application.count(),
     db.document.count({ where: { status: "PENDING" } }),
     db.application.count({ where: { status: "NEEDS_ACTION" } }),
@@ -21,6 +21,12 @@ export default async function AdminDashboard() {
       where: { documents: { some: { status: "PENDING" } }, status: { notIn: ["APPROVED", "REJECTED"] } },
       select: appRowSelect,
       orderBy: { updatedAt: "asc" },
+      take: 10,
+    }),
+    db.application.findMany({
+      where: { scholarshipPercent: { not: null } },
+      select: appRowSelect,
+      orderBy: { createdAt: "desc" },
       take: 10,
     }),
   ]);
@@ -64,6 +70,14 @@ export default async function AdminDashboard() {
             <p className="mt-1 font-bold text-navy-950/80">درخواست نمایندگی در انتظار تایید</p>
           </div>
         </Link>
+      </div>
+
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="flex items-center gap-2 text-lg font-extrabold text-navy-950"><Award className="h-5 w-5 text-gold-500" />استفاده از سهمیه بورسیه</h2>
+        <Link href="/admin/applications?scholarship=1" className="text-sm font-bold text-crimson-500">مشاهده همه</Link>
+      </div>
+      <div className="mb-8">
+        <ApplicationsTable rows={scholarships} basePath="/admin/applications" showAgent empty="هنوز هیچ نماینده‌ای از سهمیه بورسیه استفاده نکرده است." />
       </div>
 
       <div className="mb-4 flex items-center justify-between">

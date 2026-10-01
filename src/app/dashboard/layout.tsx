@@ -12,7 +12,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
       nav={[
         { href: "/dashboard", label: "درخواست‌های من", icon: "LayoutDashboard", exact: true },
         { href: "/dashboard/apply", label: "ثبت درخواست جدید", icon: "FilePlus2" },
-        { href: "/universities", label: "دانشگاه‌ها", icon: "Building2" },
+        { href: "/dashboard/universities", label: "دانشگاه‌ها", icon: "Building2" },
         { href: "/", label: "بازگشت به سایت", icon: "Globe", exact: true },
       ]}
     >

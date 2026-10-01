@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft, FolderOpen, Paperclip } from "lucide-react";
-import { StatusBadge } from "@/components/ui/badge";
+import { ScholarshipBadge, StatusBadge } from "@/components/ui/badge";
 import { APP_STATUSES, APP_TYPES, type AppType } from "@/lib/constants";
 import { formatDate, toFa } from "@/lib/utils";
 
@@ -10,6 +10,7 @@ export type AppRow = {
   type: string;
   status: string;
   studentName: string;
+  scholarshipPercent: number | null;
   createdAt: Date;
   university?: { name: string } | null;
   agent?: { name: string; companyName: string | null } | null;
@@ -52,6 +53,7 @@ export function ApplicationsTable({ rows, basePath, showAgent = false, empty }: 
                 <td className="px-5 py-4">
                   <p className="font-semibold text-navy-900">{APP_TYPES[r.type as AppType]?.short ?? r.type}</p>
                   {r.university && <p className="text-xs text-muted">{r.university.name}</p>}
+                  {r.scholarshipPercent && <div className="mt-1.5"><ScholarshipBadge percent={r.scholarshipPercent} /></div>}
                 </td>
                 {showAgent && (
                   <td className="px-5 py-4 text-xs">
@@ -83,6 +85,7 @@ export const appRowSelect = {
   type: true,
   status: true,
   studentName: true,
+  scholarshipPercent: true,
   createdAt: true,
   university: { select: { name: true } },
   agent: { select: { name: true, companyName: true } },

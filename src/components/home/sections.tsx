@@ -92,7 +92,7 @@ export function UniversitiesSection({ featured, all }: { featured: UniversityCar
             id="unis-title"
             center={false}
             eyebrow="دانشگاه‌های همکار"
-            title="برترین دانشگاه‌های دولتی و خصوصی ترکیه"
+            title="برترین دانشگاه‌های خصوصی ترکیه"
             lead="اطلاعات کامل، رشته‌ها، شهریه تقریبی و شرایط پذیرش هر دانشگاه را ببینید."
           />
           <Reveal>

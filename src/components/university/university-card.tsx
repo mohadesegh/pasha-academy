@@ -33,10 +33,10 @@ export function UniMonogram({ name, color, className }: { name: string; color: s
   );
 }
 
-export function UniversityCard({ u }: { u: UniversityCardData }) {
+export function UniversityCard({ u, href }: { u: UniversityCardData; href?: string }) {
   return (
     <Link
-      href={`/universities/${u.slug}`}
+      href={href ?? `/universities/${u.slug}`}
       className="group card relative flex h-full flex-col overflow-hidden p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lift"
     >
       <span

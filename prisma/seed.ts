@@ -3,135 +3,10 @@ import bcrypt from "bcryptjs";
 
 const db = new PrismaClient();
 
+// Only private (foundation) universities are offered.
 // Tuition figures are approximate starting prices (USD / year) for international students
 // and should be reviewed by the Pasha Academy team each academic year.
 const universities = [
-  {
-    slug: "istanbul-university",
-    name: "دانشگاه استانبول",
-    nameEn: "Istanbul University",
-    city: "استانبول",
-    type: "PUBLIC",
-    founded: 1453,
-    students: 70000,
-    tuitionFrom: 700,
-    languages: "ترکی,انگلیسی",
-    programs: "پزشکی,دندانپزشکی,حقوق,اقتصاد,مهندسی,ادبیات,علوم سیاسی,داروسازی",
-    summary: "قدیمی‌ترین و یکی از معتبرترین دانشگاه‌های دولتی ترکیه در قلب تاریخی استانبول.",
-    description:
-      "دانشگاه استانبول ریشه در مدرسه‌ای دارد که پس از فتح استانبول در سال ۱۴۵۳ تاسیس شد و امروز یکی از بزرگ‌ترین مراکز علمی ترکیه است. پردیس اصلی آن در منطقه بایزید و در کنار بازار بزرگ قرار دارد.\n\nدانشکده‌های پزشکی Cerrahpaşa و Çapa از شناخته‌شده‌ترین دانشکده‌های پزشکی منطقه هستند. پذیرش در این دانشگاه برای دانشجویان خارجی عمدتا از طریق آزمون YÖS یا مدارک معادل مانند SAT انجام می‌شود.",
-    website: "https://www.istanbul.edu.tr",
-    color: "#7a1f2b",
-    featured: true,
-  },
-  {
-    slug: "istanbul-technical-university",
-    name: "دانشگاه فنی استانبول (ITU)",
-    nameEn: "Istanbul Technical University",
-    city: "استانبول",
-    type: "PUBLIC",
-    founded: 1773,
-    students: 40000,
-    tuitionFrom: 900,
-    languages: "انگلیسی,ترکی",
-    programs: "مهندسی عمران,معماری,مهندسی کامپیوتر,مهندسی برق,مهندسی مکانیک,مهندسی هوافضا,مهندسی کشتی",
-    summary: "برترین دانشگاه فنی و مهندسی ترکیه با سابقه‌ای بیش از دو قرن.",
-    description:
-      "دانشگاه فنی استانبول (İTÜ) از قدیمی‌ترین دانشگاه‌های فنی جهان است و در رشته‌های مهندسی و معماری جایگاه ممتازی دارد. پردیس اصلی Ayazağa در منطقه مسلک قرار دارد.\n\nبسیاری از برنامه‌های این دانشگاه به زبان انگلیسی یا ۳۰٪ انگلیسی ارائه می‌شوند و فارغ‌التحصیلان آن در صنایع بزرگ ترکیه و اروپا جذب می‌شوند.",
-    website: "https://www.itu.edu.tr",
-    color: "#1b3f8f",
-    featured: true,
-  },
-  {
-    slug: "middle-east-technical-university",
-    name: "دانشگاه فنی خاورمیانه (ODTÜ)",
-    nameEn: "Middle East Technical University",
-    city: "آنکارا",
-    type: "PUBLIC",
-    founded: 1956,
-    students: 30000,
-    tuitionFrom: 900,
-    languages: "انگلیسی",
-    programs: "مهندسی کامپیوتر,مهندسی برق,مهندسی شیمی,معماری,فیزیک,اقتصاد,مدیریت",
-    summary: "دانشگاه تمام انگلیسی زبان در آنکارا و یکی از بهترین دانشگاه‌های پژوهشی منطقه.",
-    description:
-      "دانشگاه فنی خاورمیانه (METU / ODTÜ) با زبان آموزشی تمام انگلیسی و پردیس بسیار بزرگ و سرسبز در آنکارا شناخته می‌شود. این دانشگاه در رتبه‌بندی‌های جهانی همواره جزو بهترین دانشگاه‌های ترکیه است.\n\nپذیرش دانشجویان خارجی بر اساس آزمون‌های بین‌المللی مانند SAT و مدرک زبان انجام می‌شود.",
-    website: "https://www.metu.edu.tr",
-    color: "#b01e2d",
-    featured: true,
-  },
-  {
-    slug: "bogazici-university",
-    name: "دانشگاه بغازیچی",
-    nameEn: "Boğaziçi University",
-    city: "استانبول",
-    type: "PUBLIC",
-    founded: 1863,
-    students: 16000,
-    tuitionFrom: 900,
-    languages: "انگلیسی",
-    programs: "مهندسی صنایع,مهندسی کامپیوتر,اقتصاد,مدیریت,روانشناسی,زبان‌شناسی,ریاضی",
-    summary: "دانشگاهی با پردیس رویایی مشرف به تنگه بسفر و آموزش تمام انگلیسی.",
-    description:
-      "دانشگاه بغازیچی بر پایه کالج رابرت، نخستین کالج آمریکایی خارج از آمریکا، بنا شده است. پردیس جنوبی آن با چشم‌انداز تنگه بسفر یکی از زیباترین پردیس‌های دانشگاهی جهان است.\n\nآموزش در تمام رشته‌ها به زبان انگلیسی است و رقابت برای پذیرش بسیار بالاست.",
-    website: "https://www.bogazici.edu.tr",
-    color: "#0f5c8c",
-    featured: true,
-  },
-  {
-    slug: "hacettepe-university",
-    name: "دانشگاه حاجت‌تپه",
-    nameEn: "Hacettepe University",
-    city: "آنکارا",
-    type: "PUBLIC",
-    founded: 1967,
-    students: 50000,
-    tuitionFrom: 800,
-    languages: "ترکی,انگلیسی",
-    programs: "پزشکی,دندانپزشکی,داروسازی,پرستاری,مهندسی,علوم پایه,هنرهای زیبا",
-    summary: "قطب علوم پزشکی و سلامت ترکیه با بیمارستان‌های آموزشی مجهز.",
-    description:
-      "دانشگاه حاجت‌تپه در آنکارا به‌ویژه در رشته‌های پزشکی و علوم سلامت شناخته‌شده است و مجموعه بیمارستانی بزرگی در اختیار دارد.\n\nدانشکده پزشکی انگلیسی زبان این دانشگاه یکی از مقاصد محبوب دانشجویان بین‌المللی است.",
-    website: "https://www.hacettepe.edu.tr",
-    color: "#5b1a6e",
-    featured: false,
-  },
-  {
-    slug: "ankara-university",
-    name: "دانشگاه آنکارا",
-    nameEn: "Ankara University",
-    city: "آنکارا",
-    type: "PUBLIC",
-    founded: 1946,
-    students: 60000,
-    tuitionFrom: 700,
-    languages: "ترکی",
-    programs: "حقوق,علوم سیاسی,پزشکی,دامپزشکی,زبان و ادبیات,کشاورزی,داروسازی",
-    summary: "نخستین دانشگاه جمهوری ترکیه و مرکز آموزش زبان ترکی تومر.",
-    description:
-      "دانشگاه آنکارا نخستین دانشگاهی است که پس از تاسیس جمهوری ترکیه ایجاد شد. مرکز TÖMER این دانشگاه از مراکز شناخته‌شده آموزش زبان ترکی برای خارجیان است.\n\nدانشکده‌های حقوق و علوم سیاسی آن سابقه‌ای طولانی در تربیت نخبگان ترکیه دارند.",
-    website: "https://www.ankara.edu.tr",
-    color: "#1f4e79",
-    featured: false,
-  },
-  {
-    slug: "ege-university",
-    name: "دانشگاه اژه",
-    nameEn: "Ege University",
-    city: "ازمیر",
-    type: "PUBLIC",
-    founded: 1955,
-    students: 55000,
-    tuitionFrom: 600,
-    languages: "ترکی,انگلیسی",
-    programs: "پزشکی,دندانپزشکی,مهندسی,کشاورزی,ارتباطات,علوم پایه",
-    summary: "بزرگ‌ترین دانشگاه دولتی ازمیر در ساحل دریای اژه.",
-    description:
-      "دانشگاه اژه در شهر ساحلی و زیبای ازمیر قرار دارد و از دانشگاه‌های قدیمی و پرجمعیت ترکیه است. هزینه زندگی در ازمیر نسبت به استانبول پایین‌تر است.\n\nدانشکده پزشکی و بیمارستان این دانشگاه از مراکز درمانی مهم منطقه اژه است.",
-    website: "https://ege.edu.tr",
-    color: "#0e6f77",
-    featured: false,
-  },
   {
     slug: "bilkent-university",
     name: "دانشگاه بیلکنت",
@@ -278,6 +153,77 @@ const universities = [
   },
 ];
 
+// ---------------------------------------------------------------------------
+// SAMPLE program catalogue. Every row is stored with `sample: true` and shown with a
+// "sample" label on the site until the real price list is imported from the admin panel.
+// Prices are derived from each university's starting tuition and are NOT real quotes.
+// ---------------------------------------------------------------------------
+type Catalog = { name: string; nameEn: string; faculty: string; degree: string; years: number; factor: number; medical?: boolean };
+
+const CATALOG: Catalog[] = [
+  { name: "پزشکی", nameEn: "Medicine", faculty: "دانشکده پزشکی", degree: "BACHELOR", years: 6, factor: 3.2, medical: true },
+  { name: "دندانپزشکی", nameEn: "Dentistry", faculty: "دانشکده دندانپزشکی", degree: "BACHELOR", years: 5, factor: 2.6, medical: true },
+  { name: "داروسازی", nameEn: "Pharmacy", faculty: "دانشکده داروسازی", degree: "BACHELOR", years: 5, factor: 1.8, medical: true },
+  { name: "پرستاری", nameEn: "Nursing", faculty: "دانشکده علوم سلامت", degree: "BACHELOR", years: 4, factor: 0.9, medical: true },
+  { name: "فیزیوتراپی", nameEn: "Physiotherapy", faculty: "دانشکده علوم سلامت", degree: "BACHELOR", years: 4, factor: 1.0, medical: true },
+  { name: "مهندسی کامپیوتر", nameEn: "Computer Engineering", faculty: "دانشکده مهندسی", degree: "BACHELOR", years: 4, factor: 1.2 },
+  { name: "مهندسی نرم‌افزار", nameEn: "Software Engineering", faculty: "دانشکده مهندسی", degree: "BACHELOR", years: 4, factor: 1.2 },
+  { name: "مهندسی هوش مصنوعی", nameEn: "Artificial Intelligence Engineering", faculty: "دانشکده مهندسی", degree: "BACHELOR", years: 4, factor: 1.3 },
+  { name: "مهندسی برق و الکترونیک", nameEn: "Electrical & Electronics Engineering", faculty: "دانشکده مهندسی", degree: "BACHELOR", years: 4, factor: 1.1 },
+  { name: "مهندسی صنایع", nameEn: "Industrial Engineering", faculty: "دانشکده مهندسی", degree: "BACHELOR", years: 4, factor: 1.0 },
+  { name: "معماری", nameEn: "Architecture", faculty: "دانشکده معماری و طراحی", degree: "BACHELOR", years: 4, factor: 1.1 },
+  { name: "طراحی داخلی", nameEn: "Interior Design", faculty: "دانشکده معماری و طراحی", degree: "BACHELOR", years: 4, factor: 0.9 },
+  { name: "مدیریت بازرگانی", nameEn: "Business Administration", faculty: "دانشکده اقتصاد و مدیریت", degree: "BACHELOR", years: 4, factor: 0.9 },
+  { name: "تجارت بین‌الملل", nameEn: "International Trade", faculty: "دانشکده اقتصاد و مدیریت", degree: "BACHELOR", years: 4, factor: 0.85 },
+  { name: "روانشناسی", nameEn: "Psychology", faculty: "دانشکده علوم انسانی", degree: "BACHELOR", years: 4, factor: 1.0 },
+  { name: "حقوق", nameEn: "Law", faculty: "دانشکده حقوق", degree: "BACHELOR", years: 4, factor: 1.2 },
+  { name: "برنامه‌نویسی کامپیوتر", nameEn: "Computer Programming", faculty: "آموزشکده فنی", degree: "ASSOCIATE", years: 2, factor: 0.5 },
+  { name: "تصویربرداری پزشکی", nameEn: "Medical Imaging", faculty: "آموزشکده علوم سلامت", degree: "ASSOCIATE", years: 2, factor: 0.55, medical: true },
+  { name: "پروتز دندان", nameEn: "Dental Prosthetics", faculty: "آموزشکده علوم سلامت", degree: "ASSOCIATE", years: 2, factor: 0.55, medical: true },
+  { name: "مدیریت کسب‌وکار (MBA)", nameEn: "MBA", faculty: "تحصیلات تکمیلی", degree: "MASTER", years: 2, factor: 0.75 },
+  { name: "مهندسی کامپیوتر (ارشد)", nameEn: "Computer Engineering (MSc)", faculty: "تحصیلات تکمیلی", degree: "MASTER", years: 2, factor: 0.8 },
+  { name: "روانشناسی بالینی (ارشد)", nameEn: "Clinical Psychology (MSc)", faculty: "تحصیلات تکمیلی", degree: "MASTER", years: 2, factor: 0.8 },
+  { name: "مدیریت (دکتری)", nameEn: "Management (PhD)", faculty: "تحصیلات تکمیلی", degree: "PHD", years: 4, factor: 0.9 },
+];
+
+// Universities that already offer their own merit scholarships don't get Pasha scholarship seats.
+const NO_PASHA_SEATS = new Set(["koc-university", "sabanci-university", "bilkent-university"]);
+const ENGLISH_ONLY = new Set(["koc-university", "sabanci-university", "bilkent-university"]);
+const MEDICAL = new Set(["istanbul-medipol-university", "istinye-university", "altinbas-university", "yeditepe-university", "koc-university", "bahcesehir-university"]);
+
+const round50 = (n: number) => Math.round(n / 50) * 50;
+
+function samplePrograms(u: { slug: string; tuitionFrom: number | null }) {
+  const base = Math.max(u.tuitionFrom ?? 5000, 3000);
+  const rows = [];
+  let i = 0;
+  for (const c of CATALOG) {
+    if (c.medical && !MEDICAL.has(u.slug)) continue;
+    for (const language of ENGLISH_ONLY.has(u.slug) ? ["EN"] : ["EN", "TR"]) {
+      i++;
+      const tuition = round50(base * c.factor * (language === "TR" ? 0.85 : 1));
+      const prepFee = round50(base * 0.6);
+      const termTotal = tuition * c.years + prepFee;
+      rows.push({
+        name: `${c.name} (${language === "EN" ? "انگلیسی" : "ترکی"})`,
+        nameEn: c.nameEn,
+        faculty: c.faculty,
+        degree: c.degree,
+        language,
+        durationYears: c.years,
+        tuition,
+        cashTotal: round50(termTotal * 0.85),
+        deposit: 1000,
+        prepFee,
+        // Roughly every other program gets a Pasha 100% scholarship seat (about 60% cheaper overall).
+        scholarshipPrice: !NO_PASHA_SEATS.has(u.slug) && i % 2 === 0 ? round50(termTotal * 0.4) : null,
+        sample: true,
+      });
+    }
+  }
+  return rows;
+}
+
 async function main() {
   const adminEmail = (process.env.ADMIN_EMAIL ?? "admin@pasha-academy.com").toLowerCase();
   const adminPassword = process.env.ADMIN_PASSWORD ?? "Admin@12345";
@@ -320,11 +266,19 @@ async function main() {
     },
   });
 
+  let programCount = 0;
   for (const u of universities) {
-    await db.university.upsert({ where: { slug: u.slug }, update: u, create: u });
+    const saved = await db.university.upsert({ where: { slug: u.slug }, update: u, create: u });
+    // Only sample rows are replaced, so real programs entered by the admin survive a re-seed.
+    await db.program.deleteMany({ where: { universityId: saved.id, sample: true } });
+    const rows = samplePrograms(u);
+    await db.program.createMany({ data: rows.map((r) => ({ ...r, universityId: saved.id })) });
+    programCount += rows.length;
   }
 
-  console.log(`Seeded admin (${adminEmail}), demo agent, demo student and ${universities.length} universities.`);
+  console.log(
+    `Seeded admin (${adminEmail}), demo agent, demo student, ${universities.length} universities and ${programCount} SAMPLE programs.`,
+  );
 }
 
 main()

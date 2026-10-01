@@ -61,8 +61,8 @@ export default async function UniversityPage({ params }: Props) {
         crumbs={[{ name: "دانشگاه‌ها", href: "/universities" }, { name: u.name, href: path }]}
       >
         <div className="mt-6 flex items-center gap-4">
-          <UniMonogram name={u.nameEn} color={u.color} className="h-16 w-16 text-xl ring-4 ring-white/10" />
-          <p className="font-bold text-white/60" dir="ltr">{u.nameEn}</p>
+          <UniMonogram name={u.nameEn} color={u.color} className="h-16 w-16 text-xl ring-4 ring-white" />
+          <p className="font-bold text-muted" dir="ltr">{u.nameEn}</p>
         </div>
       </PageHero>
 

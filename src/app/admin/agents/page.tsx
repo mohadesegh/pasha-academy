@@ -22,6 +22,12 @@ export default async function AdminAgentsPage({ searchParams }: Props) {
     },
     orderBy: { createdAt: "desc" },
   });
+  const quotaUse = await db.application.groupBy({
+    by: ["agentId"],
+    where: { agentId: { in: agents.map((a) => a.id) }, scholarshipPercent: { not: null } },
+    _count: true,
+  });
+  const quotaFor = (id: string) => quotaUse.find((q) => q.agentId === id)?._count ?? 0;
 
   const tabs = [{ key: "", label: "همه" }, ...Object.entries(AGENT_STATUSES).map(([k, v]) => ({ key: k, label: v.label }))];
 
@@ -44,12 +50,13 @@ export default async function AdminAgentsPage({ searchParams }: Props) {
         <div className="card flex flex-col items-center gap-3 py-16 text-muted"><Users className="h-12 w-12 text-navy-200" />نماینده‌ای یافت نشد.</div>
       ) : (
         <div className="card overflow-x-auto">
-          <table className="w-full min-w-[760px] text-sm">
+          <table className="w-full min-w-[860px] text-sm">
             <thead className="bg-sand-100 text-right text-xs text-muted">
               <tr>
                 <th className="px-5 py-3 font-bold">موسسه / نماینده</th>
                 <th className="px-5 py-3 font-bold">تماس</th>
                 <th className="px-5 py-3 font-bold">پرونده‌ها</th>
+                <th className="px-5 py-3 font-bold">سهمیه بورسیه</th>
                 <th className="px-5 py-3 font-bold">تاریخ عضویت</th>
                 <th className="px-5 py-3 font-bold">وضعیت</th>
                 <th className="px-5 py-3 font-bold">تغییر وضعیت</th>
@@ -67,6 +74,13 @@ export default async function AdminAgentsPage({ searchParams }: Props) {
                     <p dir="ltr" className="text-right text-muted">{a.phone}</p>
                   </td>
                   <td className="px-5 py-4 font-bold">{toFa(a._count.agentApplications)}</td>
+                  <td className="px-5 py-4">
+                    {quotaFor(a.id) > 0 ? (
+                      <Link href={`/admin/applications?scholarship=1&agent=${a.id}`} className="rounded-full bg-gold-50 px-2.5 py-1 text-xs font-extrabold text-gold-600">{toFa(quotaFor(a.id))} پرونده</Link>
+                    ) : (
+                      <span className="text-xs text-muted">—</span>
+                    )}
+                  </td>
                   <td className="px-5 py-4 text-muted">{formatDate(a.createdAt)}</td>
                   <td className="px-5 py-4"><StatusBadge map={AGENT_STATUSES} value={a.agentStatus ?? "PENDING"} /></td>
                   <td className="px-5 py-4"><AgentStatusSelect id={a.id} status={a.agentStatus ?? "PENDING"} /></td>

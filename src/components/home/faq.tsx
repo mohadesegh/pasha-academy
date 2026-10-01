@@ -20,10 +20,10 @@ export function FaqList({ items }: { items: { q: string; a: string }[] }) {
                 aria-expanded={isOpen}
                 aria-controls={`faq-panel-${i}`}
                 onClick={() => setOpen(isOpen ? null : i)}
-                className="flex w-full items-center justify-between gap-4 p-5 text-right font-extrabold text-navy-950"
+                className="flex w-full items-center justify-between gap-4 p-5 text-start font-extrabold text-navy-950"
               >
                 {f.q}
-                <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full transition", isOpen ? "rotate-45 bg-crimson-500 text-white" : "bg-sand-100 text-navy-700")}>
+                <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full transition", isOpen ? "rotate-45 bg-gold-400 text-navy-950" : "bg-sand-100 text-navy-700")}>
                   <Plus className="h-4 w-4" />
                 </span>
               </button>

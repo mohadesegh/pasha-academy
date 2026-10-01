@@ -27,7 +27,7 @@ export function ApplicationFilters() {
   }, [q]);
 
   return (
-    <div className="card mb-6 grid gap-3 p-4 sm:grid-cols-[1fr_200px_200px]">
+    <div className="card mb-6 grid gap-3 p-4 sm:grid-cols-[1fr_180px_180px_180px]">
       <label className="relative">
         <span className="sr-only">جستجو</span>
         <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
@@ -40,6 +40,10 @@ export function ApplicationFilters() {
       <select aria-label="نوع درخواست" className="input" value={params.get("type") ?? ""} onChange={(e) => update("type", e.target.value)}>
         <option value="">همه انواع</option>
         {APP_TYPE_KEYS.map((t) => <option key={t} value={t}>{APP_TYPES[t].label}</option>)}
+      </select>
+      <select aria-label="سهمیه بورسیه" className="input" value={params.get("scholarship") ?? ""} onChange={(e) => update("scholarship", e.target.value)}>
+        <option value="">همه پرونده‌ها</option>
+        <option value="1">فقط با سهمیه بورسیه</option>
       </select>
     </div>
   );

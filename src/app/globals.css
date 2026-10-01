@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Dark theme is a class on <html>, toggled by the header and remembered in localStorage. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* =========================================================
    Pasha Academy — Design System
    ---------------------------------------------------------
@@ -7,7 +10,7 @@
    Crimson   → Türkiye, energy (primary CTAs only, used sparingly)
    Gold      → Ottoman heritage, premium, success highlights
    Turquoise → İznik tiles, Bosphorus (secondary accents, links)
-   Sand      → warm neutral page background
+   Sand      → warm cream page background (accaco-style light layout)
    ========================================================= */
 
 @theme {
@@ -48,31 +51,41 @@
   --color-turquoise-500: #129f98;
   --color-turquoise-600: #0c7f7b;
 
-  --color-sand-50: #fdfbf7;
-  --color-sand-100: #f8f3ea;
-  --color-sand-200: #efe7d8;
-  --color-sand-300: #e2d6c1;
+  --color-sand-50: #f6efe3;
+  --color-sand-100: #efe6d6;
+  --color-sand-200: #e6dac5;
+  --color-sand-300: #d9c9ad;
+  /* Card surface: a warm off-white that sits softly on the cream page */
+  --color-surface: #fbf8f2;
 
   --color-ink: #0b1b30;
   --color-muted: #5a6a80;
-  --color-line: #e8e1d4;
+  --color-line: #e7dccb;
 
   --radius-xl: 1rem;
   --radius-2xl: 1.25rem;
   --radius-3xl: 1.75rem;
+  --radius-4xl: 2.25rem;
 
   --shadow-soft: 0 1px 2px rgb(11 35 64 / 0.04), 0 8px 24px -8px rgb(11 35 64 / 0.12);
   --shadow-lift: 0 2px 4px rgb(11 35 64 / 0.05), 0 24px 48px -16px rgb(11 35 64 / 0.25);
-  --shadow-glow: 0 10px 40px -10px rgb(227 10 23 / 0.45);
+  --shadow-glow: 0 12px 32px -12px rgb(201 149 58 / 0.7);
 
   --animate-float: float 6s ease-in-out infinite;
   --animate-marquee: marquee 40s linear infinite;
   --animate-spin-slow: spin 40s linear infinite;
 }
 
+
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-12px); }
+}
+
+/* Announcement slider progress bar */
+@keyframes announce-progress {
+  from { width: 0; }
+  to { width: 100%; }
 }
 
 /* RTL marquee: content moves to the right */
@@ -111,7 +124,7 @@
   }
 
   .btn-primary {
-    @apply btn bg-crimson-500 text-white shadow-glow hover:bg-crimson-600 hover:-translate-y-0.5;
+    @apply btn bg-gold-400 text-navy-950 shadow-glow hover:bg-gold-300 hover:-translate-y-0.5;
   }
   .btn-navy {
     @apply btn bg-navy-900 text-white hover:bg-navy-800 hover:-translate-y-0.5;
@@ -130,7 +143,7 @@
   }
 
   .card {
-    @apply rounded-2xl border border-line bg-white shadow-soft;
+    @apply rounded-3xl border border-white/70 bg-surface shadow-soft;
   }
 
   .label {
@@ -146,6 +159,10 @@
   .eyebrow {
     @apply inline-flex items-center gap-2 rounded-full border border-gold-300/60 bg-gold-50 px-3 py-1 text-xs font-bold text-gold-600;
   }
+  /* Small spaced Latin label above section titles */
+  .kicker {
+    @apply text-[11px] font-bold uppercase tracking-[0.3em] text-muted;
+  }
   .section-title {
     @apply text-3xl font-black leading-tight text-navy-950 sm:text-4xl;
   }
@@ -154,7 +171,7 @@
   }
 
   .text-gradient {
-    @apply bg-gradient-to-l from-gold-300 via-gold-200 to-white bg-clip-text text-transparent;
+    @apply bg-gradient-to-l from-gold-600 via-gold-500 to-gold-400 bg-clip-text text-transparent;
   }
 
   /* İznik-inspired 8-point star pattern */
@@ -184,3 +201,66 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* =========================================================
+   Dark theme
+   ---------------------------------------------------------
+   The neutral scales (sand / line / muted / ink / surface) are remapped as
+   variables, so every bg-sand-*, border-line, text-muted … flips on its own.
+   White and the navy text shades are shared with dark "ink" surfaces
+   (buttons, footer, sidebars), so those are overridden per class instead.
+   ========================================================= */
+.dark {
+  color-scheme: dark;
+  --color-sand-50: #0b1120;
+  --color-sand-100: #141c2e;
+  --color-sand-200: #1c2639;
+  --color-sand-300: #28344b;
+  --color-surface: #121a2b;
+  --color-line: #243047;
+  --color-muted: #98a4b8;
+  --color-ink: #ece6da;
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.5);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 24px 48px -16px rgb(0 0 0 / 0.6);
+}
+
+/* Light surfaces → dark surfaces */
+.dark :is(.bg-white, .input, .btn-outline, .focus\:bg-white:focus) { background-color: #121a2b; }
+.dark :is(.bg-white\/85, .bg-white\/60) { background-color: rgb(18 26 43 / 0.85); }
+.dark :is(.bg-white\/40, .hover\:bg-white\/60:hover) { background-color: rgb(18 26 43 / 0.5); }
+.dark .hover\:bg-white:hover { background-color: #1a2438; }
+.dark .card { border-color: rgb(255 255 255 / 0.06); }
+.dark :is(.bg-navy-50, .hover\:bg-navy-50:hover) { background-color: #1a2438; }
+.dark .hover\:bg-navy-50\/40:hover { background-color: rgb(26 36 56 / 0.6); }
+.dark .bg-gold-50 { background-color: rgb(222 175 82 / 0.12); }
+.dark .bg-gold-100 { background-color: rgb(222 175 82 / 0.2); }
+.dark :is(.bg-crimson-50, .bg-crimson-50\/50, .hover\:bg-crimson-50:hover) { background-color: rgb(227 10 23 / 0.14); }
+.dark :is(.bg-turquoise-50, .bg-turquoise-50\/60) { background-color: rgb(18 159 152 / 0.15); }
+.dark .from-gold-100 { --tw-gradient-from: rgb(222 175 82 / 0.18); }
+.dark .to-turquoise-50 { --tw-gradient-to: rgb(18 159 152 / 0.12); }
+
+/* Navy text → light text */
+.dark :is(.text-navy-950, .text-navy-900, .hover\:text-navy-950:hover, .hover\:text-navy-900:hover) { color: #f1ebdf; }
+.dark :is(.text-navy-950\/80, .text-navy-950\/75, .text-navy-900\/80) { color: rgb(241 235 223 / 0.8); }
+.dark :is(.text-navy-800, .text-navy-700) { color: #cdd5e2; }
+.dark :is(.text-navy-600, .text-navy-400) { color: #9fb4d3; }
+.dark .text-navy-300 { color: #6f86a8; }
+.dark .text-navy-200 { color: #4b5f80; }
+.dark .btn-outline { color: #f1ebdf; border-color: #2c3a55; }
+.dark :is(.border-navy-200, .ring-navy-200, .ring-navy-100) { border-color: #2c3a55; --tw-ring-color: #2c3a55; }
+.dark :is(.hover\:border-navy-300:hover, .hover\:border-navy-400:hover, .hover\:ring-navy-300:hover) { border-color: #3d4d6b; --tw-ring-color: #3d4d6b; }
+
+/* Text on gold must stay dark in both themes */
+.dark :is(.bg-gold-300, .bg-gold-400, .bg-gold-500, [class*="from-gold-3"], [class*="from-gold-4"]) :is(.text-navy-950, .text-navy-900),
+.dark :is(.bg-gold-300, .bg-gold-400, .bg-gold-500, [class*="from-gold-3"], [class*="from-gold-4"]):is(.text-navy-950, .text-navy-900) {
+  color: #06142a;
+}
+
+/* Deep navy "ink" surfaces stay dark, a touch deeper than the page */
+.dark .bg-navy-950 { background-color: #050a14; }
+
+/* Component classes that @apply navy text/background (not reached by the class overrides above) */
+.dark :is(.label, .section-title, .prose-fa h2) { color: #f1ebdf; }
+.dark :is(.prose-fa p, .prose-fa ul) { color: rgb(241 235 223 / 0.8); }
+.dark .btn-navy { background-color: #1e3050; }
+.dark .btn-navy:hover { background-color: #27406a; }

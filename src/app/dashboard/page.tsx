@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BedDouble, GraduationCap, IdCard, Plus } from "lucide-react";
+import { BedDouble, GraduationCap, Plus } from "lucide-react";
 import { PageTitle } from "@/components/portal/portal-shell";
 import { ApplicationsTable, appRowSelect } from "@/components/portal/applications-table";
 import { requireRole } from "@/lib/auth";
@@ -8,7 +8,6 @@ import { db } from "@/lib/db";
 const QUICK = [
   { type: "DORMITORY", label: "درخواست خوابگاه", icon: BedDouble, cls: "from-gold-300 to-gold-500 text-navy-950" },
   { type: "ADMISSION", label: "درخواست پذیرش", icon: GraduationCap, cls: "from-crimson-500 to-crimson-700 text-white" },
-  { type: "RESIDENCE", label: "درخواست اقامت", icon: IdCard, cls: "from-turquoise-400 to-turquoise-600 text-white" },
 ];
 
 export default async function StudentDashboard() {
@@ -31,7 +30,7 @@ export default async function StudentDashboard() {
           </Link>
         }
       />
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
+      <div className="mb-8 grid gap-4 sm:grid-cols-2">
         {QUICK.map((q) => (
           <Link
             key={q.type}

@@ -9,6 +9,7 @@ import {
   Building2,
   FilePlus2,
   FolderKanban,
+  GraduationCap,
   Globe,
   Inbox,
   LayoutDashboard,
@@ -18,7 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const ICONS = { LayoutDashboard, FolderKanban, FilePlus2, Users, Building2, Inbox, BedDouble, Globe };
+const ICONS = { LayoutDashboard, FolderKanban, FilePlus2, Users, Building2, GraduationCap, Inbox, BedDouble, Globe };
 export type NavItem = { href: string; label: string; icon: keyof typeof ICONS; exact?: boolean };
 
 function Links({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {

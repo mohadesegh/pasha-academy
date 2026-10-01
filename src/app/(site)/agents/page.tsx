@@ -34,7 +34,7 @@ export default function AgentsPage() {
       >
         <div className="mt-8 flex flex-wrap gap-3">
           <Link href="#join" className="btn-primary">ثبت درخواست نمایندگی</Link>
-          <Link href="/login" className="btn-ghost-light">ورود نمایندگان</Link>
+          <Link href="/login?as=agent" className="btn-outline">ورود نمایندگان</Link>
         </div>
       </PageHero>
 

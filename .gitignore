@@ -9,3 +9,6 @@ storage/uploads/*
 next-env.d.ts
 *.tsbuildinfo
 clean/
+
+# local env backups
+.env*.bak

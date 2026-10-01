@@ -51,7 +51,7 @@ export default async function ServicePage({ params }: Props) {
               ثبت درخواست آنلاین
             </Link>
           )}
-          <Link href="#consult" className="btn-ghost-light">مشاوره رایگان</Link>
+          <Link href="#consult" className="btn-outline">مشاوره رایگان</Link>
         </div>
       </PageHero>
 
@@ -103,12 +103,15 @@ export default async function ServicePage({ params }: Props) {
               </h2>
               <ul className="mt-4 space-y-2.5 text-sm text-navy-900">
                 {s.documents.map((d) => (
-                  <li key={d} className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-gold-400" />
+                  <li key={d} className="flex items-start gap-2 leading-6">
+                    <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
                     {d}
                   </li>
                 ))}
               </ul>
+              {s.documentsNote && (
+                <p className="mt-4 rounded-xl bg-gold-50 p-3 text-xs font-semibold leading-6 text-gold-600">{s.documentsNote}</p>
+              )}
               {s.applyType && (
                 <Link href={`/dashboard/apply?type=${s.applyType}`} className="btn-primary mt-6 w-full">
                   آپلود مدارک و ثبت درخواست

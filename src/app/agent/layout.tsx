@@ -19,7 +19,7 @@ export default async function AgentLayout({ children }: { children: React.ReactN
               { href: "/agent", label: "داشبورد", icon: "LayoutDashboard", exact: true },
               { href: "/agent/applications", label: "پرونده‌ها", icon: "FolderKanban" },
               { href: "/agent/new", label: "ثبت پرونده جدید", icon: "FilePlus2" },
-              { href: "/universities", label: "دانشگاه‌ها", icon: "Building2" },
+              { href: "/agent/universities", label: "دانشگاه‌ها", icon: "Building2" },
             ]
           : [{ href: "/agent", label: "وضعیت حساب", icon: "LayoutDashboard", exact: true }]
       }

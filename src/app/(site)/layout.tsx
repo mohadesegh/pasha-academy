@@ -1,6 +1,5 @@
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { WhatsAppButton } from "@/components/layout/whatsapp-button";
 import { JsonLd, organizationLd, websiteLd } from "@/components/seo/json-ld";
 
 // No cookies are read here so marketing pages can be statically generated;
@@ -17,7 +16,6 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <SiteHeader />
       <main id="main">{children}</main>
       <SiteFooter />
-      <WhatsAppButton />
       <JsonLd data={[organizationLd(), websiteLd()]} />
     </>
   );

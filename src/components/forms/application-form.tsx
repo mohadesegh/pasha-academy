@@ -3,16 +3,17 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { BedDouble, GraduationCap, IdCard, Plus, Send } from "lucide-react";
+import { Award, BedDouble, GraduationCap, Plus, Send } from "lucide-react";
 import { Alert, Field } from "./field";
 import { DocumentDropzone } from "./document-dropzone";
 import {
   APP_TYPES,
+  APPLICANT_DOC_KINDS,
   DEGREES,
   DOC_KINDS,
-  DOC_KIND_KEYS,
   REQUIRED_DOCS,
   ROOM_TYPES,
+  SCHOLARSHIP_OPTIONS,
   TURKEY_CITIES,
   type AppType,
   type DocKind,
@@ -24,7 +25,6 @@ type Uni = { id: string; name: string; city: string };
 const TYPE_CARDS: { type: AppType; icon: typeof BedDouble; text: string }[] = [
   { type: "DORMITORY", icon: BedDouble, text: "رزرو خوابگاه یا رزیدنس دانشجویی" },
   { type: "ADMISSION", icon: GraduationCap, text: "اخذ پذیرش از دانشگاه‌های ترکیه" },
-  { type: "RESIDENCE", icon: IdCard, text: "اخذ یا تمدید اقامت تحصیلی" },
 ];
 
 type Extra = { id: number; kind: DocKind; file: File | null };
@@ -53,7 +53,7 @@ export function ApplicationForm({
   const [progress, setProgress] = useState<number | null>(null);
 
   const requiredKinds = REQUIRED_DOCS[type];
-  const extraKinds = useMemo(() => DOC_KIND_KEYS.filter((k) => !requiredKinds.includes(k)), [requiredKinds]);
+  const extraKinds = useMemo(() => APPLICANT_DOC_KINDS.filter((k) => !requiredKinds.includes(k)), [requiredKinds]);
   const doneCount = requiredKinds.filter((k) => required[k]).length;
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -115,7 +115,7 @@ export function ApplicationForm({
           <span className="grid h-7 w-7 place-items-center rounded-full bg-navy-950 text-xs text-gold-300">۱</span>
           نوع درخواست
         </h2>
-        <div className="mt-5 grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label="نوع درخواست">
+        <div className="mt-5 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="نوع درخواست">
           {TYPE_CARDS.map((t) => {
             const active = type === t.type;
             return (
@@ -150,6 +150,11 @@ export function ApplicationForm({
           <Field label="نام و نام خانوادگی (مطابق پاسپورت)" htmlFor="studentName" required>
             <input id="studentName" name="studentName" required defaultValue={defaults?.name} className="input" />
           </Field>
+          {type === "ADMISSION" && (
+            <Field label="نام مادر" htmlFor="motherName" required>
+              <input id="motherName" name="motherName" required className="input" />
+            </Field>
+          )}
           <Field label="ملیت" htmlFor="nationality" required>
             <input id="nationality" name="nationality" required defaultValue="ایرانی" className="input" />
           </Field>
@@ -210,6 +215,17 @@ export function ApplicationForm({
                 <Field label="رشته" htmlFor="program">
                   <input id="program" name="program" className="input" placeholder="مثلا مهندسی کامپیوتر" />
                 </Field>
+                {forAgent && (
+                  <Field label="سهمیه بورسیه پاشا آکادمی" htmlFor="scholarshipPercent" className="sm:col-span-2">
+                    <div className="relative">
+                      <Award className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gold-500" />
+                      <select id="scholarshipPercent" name="scholarshipPercent" className="input" defaultValue="">
+                        <option value="">بدون استفاده از سهمیه</option>
+                        {SCHOLARSHIP_OPTIONS.map((p) => <option key={p} value={p}>بورسیه {toFa(p)}٪</option>)}
+                      </select>
+                    </div>
+                  </Field>
+                )}
               </motion.div>
             )}
           </AnimatePresence>

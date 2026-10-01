@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, Loader2, RotateCcw, Save, Trash2, Upload, X } from "lucide-react";
 import { Alert, postJson } from "@/components/forms/field";
 import { DocumentDropzone } from "@/components/forms/document-dropzone";
-import { APP_STATUSES, APP_STATUS_KEYS, DOC_KINDS, DOC_KIND_KEYS, type DocKind } from "@/lib/constants";
+import { APP_STATUSES, APP_STATUS_KEYS, APPLICANT_DOC_KINDS, DOC_KINDS, type DocKind } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 function useAction() {
@@ -112,9 +112,21 @@ export function DocDelete({ id }: { id: string }) {
 }
 
 /** Upload an extra / replacement document to an existing application. */
-export function UploadMore({ applicationId, suggestKind }: { applicationId: string; suggestKind?: DocKind }) {
+export function UploadMore({
+  applicationId,
+  suggestKind,
+  kinds = APPLICANT_DOC_KINDS,
+  buttonLabel = "بارگذاری مدرک",
+}: {
+  applicationId: string;
+  suggestKind?: DocKind;
+  kinds?: DocKind[];
+  buttonLabel?: string;
+}) {
   const router = useRouter();
-  const [kind, setKind] = useState<DocKind>(suggestKind ?? "OTHER");
+  const [kind, setKind] = useState<DocKind>(
+    suggestKind && kinds.includes(suggestKind) ? suggestKind : kinds.includes("OTHER") ? "OTHER" : kinds[0],
+  );
   const [file, setFile] = useState<File | null>(null);
   const [pending, setPending] = useState(false);
   const [msg, setMsg] = useState<{ tone: "error" | "success"; text: string } | null>(null);
@@ -131,7 +143,7 @@ export function UploadMore({ applicationId, suggestKind }: { applicationId: stri
     setPending(false);
     if (json.ok) {
       setFile(null);
-      setMsg({ tone: "success", text: "مدرک با موفقیت بارگذاری شد" });
+      setMsg({ tone: "success", text: `«${DOC_KINDS[kind]}» با موفقیت بارگذاری شد` });
       router.refresh();
     } else {
       setMsg({ tone: "error", text: json.error });
@@ -140,14 +152,16 @@ export function UploadMore({ applicationId, suggestKind }: { applicationId: stri
 
   return (
     <div className="space-y-3">
-      <select value={kind} onChange={(e) => setKind(e.target.value as DocKind)} className="input" aria-label="نوع مدرک">
-        {DOC_KIND_KEYS.map((k) => <option key={k} value={k}>{DOC_KINDS[k]}</option>)}
-      </select>
+      {kinds.length > 1 && (
+        <select value={kind} onChange={(e) => setKind(e.target.value as DocKind)} className="input" aria-label="نوع مدرک">
+          {kinds.map((k) => <option key={k} value={k}>{DOC_KINDS[k]}</option>)}
+        </select>
+      )}
       <DocumentDropzone compact label={DOC_KINDS[kind]} file={file} onChange={setFile} />
       {msg && <Alert tone={msg.tone}>{msg.text}</Alert>}
       <button type="button" disabled={!file || pending} onClick={submit} className="btn-navy w-full">
         {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-        بارگذاری مدرک
+        {buttonLabel}
       </button>
     </div>
   );

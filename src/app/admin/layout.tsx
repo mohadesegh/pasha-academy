@@ -14,6 +14,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         { href: "/admin/applications", label: "درخواست‌ها و مدارک", icon: "FolderKanban" },
         { href: "/admin/agents", label: "نمایندگان", icon: "Users" },
         { href: "/admin/universities", label: "دانشگاه‌ها", icon: "Building2" },
+        { href: "/admin/programs", label: "رشته‌ها و شهریه‌ها", icon: "GraduationCap" },
         { href: "/admin/leads", label: "درخواست‌های مشاوره", icon: "Inbox" },
         { href: "/", label: "مشاهده سایت", icon: "Globe", exact: true },
       ]}
