@@ -47,6 +47,8 @@ model University {
   summary     String
   description String
   website     String?
+  /// Logo image: absolute URL or a path under /public, e.g. /images/universities/koc.png
+  logo        String?
   color       String   @default("#0B2A4A")
   featured    Boolean  @default(false)
   published   Boolean  @default(true)

@@ -23,14 +23,14 @@ export default async function AdminUniversitiesPage() {
       <div className="grid gap-4 md:grid-cols-2">
         {unis.map((u) => (
           <div key={u.id} className="card flex items-center gap-4 p-4">
-            <UniMonogram name={u.nameEn} color={u.color} />
+            <UniMonogram name={u.nameEn} color={u.color} logo={u.logo} />
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-1.5 font-extrabold text-navy-950">
                 {u.name}
                 {u.featured && <Star className="h-4 w-4 fill-gold-400 text-gold-400" />}
               </p>
               <p className="text-xs text-muted">
-                {u.city} · {u.type === "PUBLIC" ? "دولتی" : "خصوصی"} · {u.tuitionFrom ? `از ${formatNumber(u.tuitionFrom)}$` : "—"} · {toFa(u._count.applications)} درخواست
+                {u.city} · {u.type === "PUBLIC" ? "دولتی" : "خصوصی"} · {u.tuitionFrom ? `از ${formatNumber(u.tuitionFrom)} دلار` : "—"} · {toFa(u._count.applications)} درخواست
               </p>
               {!u.published && <span className="mt-1 inline-block rounded-full bg-sand-200 px-2 py-0.5 text-[10px] font-bold text-muted">پیش‌نویس</span>}
             </div>

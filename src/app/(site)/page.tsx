@@ -51,8 +51,8 @@ export default async function HomePage() {
   return (
     <>
       <Hero />
-      <AnnouncementsSlider />
       <UniversityMarquee universities={marquee} {...l} />
+      <AnnouncementsSlider />
 
       <section className="overflow-hidden py-20">
         <div className="container-x">

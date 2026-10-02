@@ -131,8 +131,8 @@ export default async function AdminProgramsPage({ searchParams }: Props) {
                     <td className="px-5 py-4">{PROGRAM_DEGREES[p.degree as ProgramDegree]?.fa ?? p.degree}</td>
                     <td className="px-5 py-4">{PROGRAM_LANGUAGES[p.language as ProgramLanguage]?.fa ?? p.language}</td>
                     <td className="px-5 py-4 text-muted">{toFa(p.durationYears)} سال</td>
-                    <td className="px-5 py-4 font-bold text-navy-950">{formatNumber(p.tuition)}$</td>
-                    <td className="px-5 py-4">{p.scholarshipPrice != null ? `${formatNumber(p.scholarshipPrice)}$` : <span className="text-muted">—</span>}</td>
+                    <td className="px-5 py-4 font-bold text-navy-950">{formatNumber(p.tuition)} دلار</td>
+                    <td className="px-5 py-4">{p.scholarshipPrice != null ? `${formatNumber(p.scholarshipPrice)} دلار` : <span className="text-muted">—</span>}</td>
                     <td className="px-5 py-4">
                       <Link href={`/admin/programs/${p.id}`} className="grid h-9 w-9 place-items-center rounded-full bg-navy-950 text-white hover:bg-navy-800" aria-label="ویرایش">
                         <Pencil className="h-4 w-4" />

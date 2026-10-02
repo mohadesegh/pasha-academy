@@ -44,7 +44,7 @@ export default async function ServicePage({ params }: Props) {
         lead={s.short}
         crumbs={[{ name: "خدمات", href: "/services" }, { name: s.title, href: `/services/${s.slug}` }]}
       >
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="btn-group mt-8">
           {s.applyType && (
             <Link href={`/dashboard/apply?type=${s.applyType}`} className="btn-primary">
               <Upload className="h-4 w-4" />

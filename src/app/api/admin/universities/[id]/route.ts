@@ -27,7 +27,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
     if (taken) return fail("این اسلاگ قبلا استفاده شده است", 409);
   }
 
-  await db.university.update({ where: { id }, data: { ...parsed.data, website: parsed.data.website || null } });
+  await db.university.update({ where: { id }, data: { ...parsed.data, website: parsed.data.website || null, logo: parsed.data.logo || null } });
   refresh();
   return ok({ id });
 }

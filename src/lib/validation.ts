@@ -95,6 +95,12 @@ export const universitySchema = z.object({
   summary: z.string().trim().min(10, "خلاصه حداقل ۱۰ کاراکتر باشد").max(300),
   description: z.string().trim().min(20, "توضیحات حداقل ۲۰ کاراکتر باشد").max(6000),
   website: z.string().trim().url("آدرس وب‌سایت معتبر نیست").optional().or(z.literal("")),
+  logo: z
+    .string()
+    .trim()
+    .max(500)
+    .refine((v) => v === "" || v.startsWith("/") || /^https?:\/\//.test(v), "آدرس لوگو باید با https:// یا / شروع شود")
+    .optional(),
   color: z.string().trim().regex(/^#[0-9a-fA-F]{6}$/, "رنگ باید به فرمت هگز باشد"),
   featured: z.boolean().optional(),
   published: z.boolean().optional(),

@@ -43,7 +43,7 @@ export default function DormitoryPage() {
         lead="قبل از سفر، محل اقامت امن و نزدیک به دانشگاه خود را قطعی کنید. درخواست را آنلاین ثبت کنید و مدارک را همین‌جا آپلود کنید."
         crumbs={[{ name: "خوابگاه", href: "/dormitory" }]}
       >
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="btn-group mt-8">
           <Link href="/dashboard/apply?type=DORMITORY" className="btn-primary px-8 py-4 text-base">
             <Upload className="h-5 w-5" />
             ثبت درخواست و آپلود مدارک

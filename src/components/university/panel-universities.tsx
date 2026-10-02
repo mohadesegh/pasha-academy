@@ -61,7 +61,7 @@ export async function PanelUniversityDetail({
 
       <div className="card mb-6 flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <UniMonogram name={u.nameEn} color={u.color} className="h-16 w-16" />
+          <UniMonogram name={u.nameEn} color={u.color} logo={u.logo} className="h-16 w-16" />
           <div>
             <h1 className="text-2xl font-black text-navy-950">{u.name}</h1>
             <p className="mt-1 text-sm text-muted" dir="ltr">{u.nameEn}</p>

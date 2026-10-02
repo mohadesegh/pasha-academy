@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  ArrowLeft, ArrowRight, Bot, Building2, Check, Gem, Globe2, Landmark, Laptop, MessageCircle, Pill, Smile, Stethoscope, Zap,
+  ArrowLeft, ArrowRight, Bot, Building2, Check, Gem, Globe2, Landmark, Laptop, MapPin, MessageCircle, Pill, Smile, Stethoscope, Zap,
   type LucideIcon,
 } from "lucide-react";
 import { Counter, Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
@@ -43,15 +43,28 @@ export function UniversityMarquee({ universities, locale, t }: L & { universitie
   if (universities.length === 0) return null;
   const loop = [...universities, ...universities];
   return (
-    <section aria-label={t.marquee.label} className="relative overflow-hidden py-6">
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-sand-50 to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-sand-50 to-transparent" />
-      <ul className="animate-marquee flex w-max gap-4" dir="rtl">
+    <section aria-label={t.marquee.label} className="relative overflow-hidden py-5 sm:py-8">
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r sm:w-24 from-sand-50 to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l sm:w-24 from-sand-50 to-transparent" />
+      <ul className="animate-marquee flex w-max gap-3 hover:[animation-play-state:paused] sm:gap-4" dir="rtl">
         {loop.map((u, i) => (
           <li key={`${u.slug}-${i}`} aria-hidden={i >= universities.length}>
-            <Link href={`/universities/${u.slug}`} className="card flex h-16 min-w-52 items-center gap-3 px-5 transition hover:shadow-lift" tabIndex={i >= universities.length ? -1 : 0}>
-              <UniMonogram name={u.nameEn} color={u.color} className="h-9 w-9 rounded-xl text-[11px]" />
-              <span className="whitespace-nowrap text-sm font-extrabold text-navy-900">{universityName(u, locale)}</span>
+            <Link
+              href={u.href ?? `/universities/${u.slug}`}
+              title={universityName(u, locale)}
+              className="card flex h-20 w-32 flex-col items-center justify-center gap-1.5 rounded-2xl px-3 transition duration-300 hover:shadow-lift sm:h-28 sm:w-48 sm:gap-2 sm:rounded-[1.75rem] sm:px-5 sm:hover:-translate-y-1 lg:h-32 lg:w-56"
+              tabIndex={i >= universities.length ? -1 : 0}
+            >
+              {u.logo ? (
+                // Plain <img>: logos may live on any host, and next/image would need each domain whitelisted.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={u.logo} alt={universityName(u, locale)} loading="lazy" className="max-h-12 max-w-full object-contain sm:max-h-20 lg:max-h-24" />
+              ) : (
+                <>
+                  <UniMonogram name={u.nameEn} color={u.color} className="h-9 w-9 rounded-xl text-xs sm:h-12 sm:w-12 sm:rounded-2xl sm:text-sm" />
+                  <span className="max-w-full truncate text-[10px] font-extrabold text-navy-900 sm:text-xs">{universityName(u, locale)}</span>
+                </>
+              )}
             </Link>
           </li>
         ))}
@@ -123,7 +136,7 @@ export function GoldenScholarship({ locale, t, example, whatsapp }: L & { exampl
         <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-gold-100 via-sand-50 to-sand-100 p-6 ring-1 ring-gold-200/70 sm:p-12 dark:from-gold-500/10 dark:via-sand-100 dark:to-sand-50 dark:ring-gold-500/20">
           <div className="grid items-center gap-10 lg:grid-cols-2">
             <Reveal>
-              <span className="inline-flex items-center gap-2 rounded-full bg-surface px-4 py-1.5 text-xs font-black tracking-widest text-navy-900 shadow-soft">
+              <span className="inline-flex items-center gap-2 rounded-full bg-surface px-4 py-1.5 text-xs font-black text-navy-900 ltr:tracking-widest shadow-soft">
                 <span className="h-2 w-2 rounded-full bg-gold-500" />
                 {t.special.eyebrow}
               </span>
@@ -143,7 +156,7 @@ export function GoldenScholarship({ locale, t, example, whatsapp }: L & { exampl
                   </div>
                 ))}
               </div>
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="btn-group mt-6">
                 <Link href="/scholarships" className="btn-navy">{t.special.ctaList}</Link>
                 <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="btn-outline">{t.special.ctaConsult}</a>
               </div>
@@ -199,21 +212,28 @@ export function FeaturedUniversities({ locale, t, universities }: L & { universi
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h3 className="text-lg font-black text-navy-950">{locale === "fa" ? u.name : u.nameEn}</h3>
-                    <p className="mt-0.5 text-xs font-bold text-gold-600">#{cityName(u.city, locale)}</p>
+                    <p className="mt-1 flex items-center gap-1 text-xs font-bold text-gold-600">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {cityName(u.city, locale)}
+                    </p>
                   </div>
-                  <UniMonogram name={u.nameEn} color={u.color} className="h-12 w-12 text-sm" />
+                  <UniMonogram name={u.nameEn} color={u.color} logo={u.logo} className="h-12 w-12 text-sm" />
                 </div>
                 {locale === "fa" && <p className="mt-4 line-clamp-2 text-sm leading-7 text-muted">{u.summary}</p>}
                 <dl className="mt-5 space-y-3 text-sm">
                   <div className="flex items-center justify-between">
                     <dt className="text-muted">{t.featured.tuition}</dt>
                     <dd className="font-black text-navy-950">
-                      {u.minTuition != null ? `${formatUsd(locale, u.minTuition)} – ${formatUsd(locale, u.maxTuition!)}` : "—"}
+                      {u.minTuition == null
+                        ? "—"
+                        : u.maxTuition == null || u.maxTuition === u.minTuition
+                          ? `${locale === "fa" ? "از" : "From"} ${formatUsd(locale, u.minTuition)}`
+                          : `${formatUsd(locale, u.minTuition)} – ${formatUsd(locale, u.maxTuition)}`}
                     </dd>
                   </div>
                   <div className="flex items-center justify-between">
                     <dt className="text-muted">{t.featured.programs}</dt>
-                    <dd className="font-bold text-navy-950">{formatNum(locale, u.programCount)}</dd>
+                    <dd className="font-bold text-navy-950">{u.programCount ? formatNum(locale, u.programCount) : "—"}</dd>
                   </div>
                   <div className="flex items-center justify-between">
                     <dt className="text-muted">{t.featured.scholarshipSeats}</dt>
@@ -354,7 +374,7 @@ export function FinalCta({ t, whatsapp }: L & { whatsapp: string }) {
           <div className="relative">
             <h2 className="text-3xl font-black sm:text-5xl">{t.cta.title}</h2>
             <p className="mx-auto mt-5 max-w-xl leading-8 text-white/70">{t.cta.text}</p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <div className="btn-group mt-8 sm:justify-center">
               <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="btn-primary px-8 py-4 text-base"><MessageCircle className="h-5 w-5" />{t.cta.primary}</a>
               <Link href="/register" className="btn-ghost-light px-8 py-4 text-base">{t.cta.secondary}</Link>
             </div>

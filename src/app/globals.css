@@ -163,6 +163,17 @@
   .kicker {
     @apply text-[11px] font-bold uppercase tracking-[0.3em] text-muted;
   }
+  /* Letter-spacing breaks the joins between Persian letters, so RTL kickers use normal spacing and a larger size. */
+  /* CTA button rows: full-width stacked buttons on phones, side by side from tablet up. */
+  .btn-group {
+    @apply grid gap-3 sm:flex sm:flex-wrap;
+  }
+  .btn-group > :is(a, button) {
+    @apply justify-center;
+  }
+  [dir="rtl"] .kicker {
+    @apply text-[13px] font-extrabold tracking-normal text-gold-600;
+  }
   .section-title {
     @apply text-3xl font-black leading-tight text-navy-950 sm:text-4xl;
   }

@@ -201,7 +201,7 @@ export function DormitoryHighlight() {
               </StaggerItem>
             ))}
           </Stagger>
-          <Reveal delay={0.2} className="mt-10 flex flex-wrap gap-3">
+          <Reveal delay={0.2} className="btn-group mt-10">
             <Link href="/dashboard/apply?type=DORMITORY" className="btn-primary">
               <Upload className="h-4 w-4" />
               ثبت درخواست و آپلود مدارک

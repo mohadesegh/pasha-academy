@@ -6,6 +6,8 @@ import { JsonLd, breadcrumbLd } from "@/components/seo/json-ld";
 import { db } from "@/lib/db";
 import { safeRead } from "@/lib/universities";
 import { siteUrl } from "@/lib/utils";
+import { SEED_UNIVERSITIES } from "@/data/universities";
+import { logoFor } from "@/lib/university-logos";
 
 // Rendered per request so the build never needs a database connection.
 export const dynamic = "force-dynamic";
@@ -18,15 +20,17 @@ export const metadata: Metadata = {
 };
 
 export default async function UniversitiesPage() {
-  const universities = await safeRead(
+  const rows = await safeRead(
     () =>
       db.university.findMany({
         where: { published: true },
-        select: { slug: true, name: true, nameEn: true, city: true, type: true, tuitionFrom: true, languages: true, summary: true, color: true, programs: true },
+        select: { slug: true, name: true, nameEn: true, city: true, type: true, tuitionFrom: true, languages: true, summary: true, color: true, logo: true, programs: true },
         orderBy: [{ featured: "desc" }, { name: "asc" }],
       }),
     [],
   );
+  // Fall back to the base catalogue when the DB is unavailable or empty, so the list is never blank.
+  const universities = (rows.length > 0 ? rows : SEED_UNIVERSITIES).map((u) => ({ ...u, logo: logoFor(u) }));
 
   return (
     <>

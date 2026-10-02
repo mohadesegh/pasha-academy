@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Award, BadgeCheck, BedDouble, Check, GraduationCap, MessageCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Award, BadgeCheck, BedDouble, Check, GraduationCap } from "lucide-react";
 import { LogoMark } from "@/components/ui/logo";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { SITE } from "@/lib/constants";
@@ -61,26 +61,22 @@ export function Hero() {
           </motion.p>
 
           <motion.div
-            className="mt-9 flex flex-wrap gap-3"
+            className="mt-8 grid gap-3 sm:mt-9 sm:flex sm:flex-wrap"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.6, ease }}
           >
-            <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-primary px-7 py-4 text-base">
+            <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-primary justify-center py-3.5 text-[15px] sm:px-7 sm:py-4 sm:text-base">
               {t.hero.ctaPrimary}
               <Arrow className="h-5 w-5" />
             </a>
-            <Link href="/programs" className="btn-navy px-7 py-4 text-base">
+            <Link href="/programs" className="btn-navy justify-center py-3.5 text-[15px] sm:px-7 sm:py-4 sm:text-base">
               {t.hero.ctaSecondary}
             </Link>
-            <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline px-6 py-4 text-base">
-              <MessageCircle className="h-5 w-5 text-[#25D366]" />
-              {t.hero.ctaWhatsapp}
-            </a>
           </motion.div>
 
           <motion.ul
-            className="mt-8 flex max-w-xl flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-navy-800"
+            className="mt-7 grid max-w-xl grid-cols-2 gap-x-4 gap-y-2.5 text-[13px] font-semibold text-navy-800 sm:mt-8 sm:flex sm:flex-wrap sm:gap-x-5 sm:gap-y-2 sm:text-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.85 }}

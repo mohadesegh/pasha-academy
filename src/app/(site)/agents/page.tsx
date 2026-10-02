@@ -32,7 +32,7 @@ export default function AgentsPage() {
         lead="برای موسسات اعزام دانشجو، مشاوران تحصیلی و آموزشگاه‌های زبان — پرونده دانشجویان خود را از طریق پورتال نمایندگان ثبت و پیگیری کنید."
         crumbs={[{ name: "همکاری با ما", href: "/agents" }]}
       >
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="btn-group mt-8">
           <Link href="#join" className="btn-primary">ثبت درخواست نمایندگی</Link>
           <Link href="/login?as=agent" className="btn-outline">ورود نمایندگان</Link>
         </div>

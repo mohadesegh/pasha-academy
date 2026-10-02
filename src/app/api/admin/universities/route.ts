@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   const exists = await db.university.findUnique({ where: { slug: parsed.data.slug } });
   if (exists) return fail("این اسلاگ قبلا استفاده شده است", 409);
 
-  const uni = await db.university.create({ data: { ...parsed.data, website: parsed.data.website || null } });
+  const uni = await db.university.create({ data: { ...parsed.data, website: parsed.data.website || null, logo: parsed.data.logo || null } });
   revalidatePath("/universities", "layout");
   revalidatePath("/");
   return ok({ id: uni.id }, 201);

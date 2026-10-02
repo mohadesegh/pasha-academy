@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Calculator, ListChecks } from "lucide-react";
+import { Calculator, ChevronDown, ListChecks } from "lucide-react";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { PROGRAM_DEGREES, PROGRAM_DEGREE_KEYS, PROGRAM_LANGUAGES, type ProgramDegree, type ProgramLanguage } from "@/lib/constants";
 import { fill, formatNum, formatUsd } from "@/lib/i18n/config";
@@ -53,23 +53,40 @@ export function TuitionCalculator({ universities, programs }: { universities: Un
   const field = (id: string, text: string, value: string, onChange: (v: string) => void, items: { value: string; label: string }[], disabled = false) => (
     <label htmlFor={id} className="block">
       <span className="mb-1.5 block text-xs font-bold text-navy-900">{text}</span>
-      <select id={id} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)} className="input rounded-2xl disabled:opacity-50">
-        <option value="">{t.calc.choose}</option>
-        {items.map((i) => <option key={i.value} value={i.value}>{i.label}</option>)}
-      </select>
+      <span className="relative block">
+        <select
+          id={id}
+          value={value}
+          disabled={disabled}
+          onChange={(e) => onChange(e.target.value)}
+          className="input h-12 appearance-none rounded-2xl py-0 pe-10 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <option value="">{t.calc.choose}</option>
+          {items.map((i) => <option key={i.value} value={i.value}>{i.label}</option>)}
+        </select>
+        <ChevronDown className="pointer-events-none absolute end-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
+      </span>
     </label>
   );
 
   return (
     <div className="card grid overflow-hidden lg:grid-cols-2">
-      <div className="flex flex-col justify-center p-8 text-center sm:p-12">
-        <p className="kicker">{t.calc.eyebrow}</p>
-        <h2 className="mt-4 text-4xl font-black leading-tight text-navy-950 sm:text-5xl">{t.calc.title}</h2>
-        <p className="mx-auto mt-5 max-w-sm leading-8 text-muted">{t.calc.lead}</p>
-        <Calculator className="mx-auto mt-8 h-14 w-14 text-gold-400" strokeWidth={1.4} />
+      {/* Mobile: compact header with an icon badge. Desktop: centred intro with the large icon. */}
+      <div className="flex flex-col justify-center p-5 sm:p-12 lg:text-center">
+        <div className="flex items-center gap-3 lg:flex-col lg:gap-0">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-navy-950 text-gold-300 lg:hidden">
+            <Calculator className="h-6 w-6" />
+          </span>
+          <div>
+            <p className="kicker">{t.calc.eyebrow}</p>
+            <h2 className="mt-1 text-2xl font-black leading-tight text-navy-950 sm:mt-4 sm:text-5xl">{t.calc.title}</h2>
+          </div>
+        </div>
+        <p className="mt-3 text-sm leading-7 text-muted sm:mt-5 sm:text-base sm:leading-8 lg:mx-auto lg:max-w-sm">{t.calc.lead}</p>
+        <Calculator className="mx-auto mt-8 hidden h-14 w-14 text-gold-400 lg:block" strokeWidth={1.4} />
       </div>
 
-      <div className="space-y-4 bg-sand-100/70 p-6 sm:p-8">
+      <div className="space-y-3.5 bg-sand-100/70 p-5 sm:space-y-4 sm:p-8">
         {field("calc-uni", t.calc.university, uni, (v) => { setUni(v); setDegree(""); setProgramName(""); setLanguage(""); },
           universities.filter((u) => programs.some((p) => p.universityId === u.id)).map((u) => ({ value: u.id, label: locale === "fa" ? u.name : u.nameEn })))}
         {field("calc-degree", t.calc.degree, degree, (v) => { setDegree(v); setProgramName(""); setLanguage(""); },
@@ -99,17 +116,17 @@ export function TuitionCalculator({ universities, programs }: { universities: Un
           </div>
         </fieldset>
 
-        <div className="min-h-36 rounded-3xl bg-white p-5 text-center">
+        <div className="min-h-32 rounded-3xl bg-white p-5 text-center shadow-soft sm:min-h-36">
           <p className="text-sm font-extrabold text-gold-600">{t.calc.final}</p>
           <AnimatePresence mode="wait">
             <motion.div key={`${selected?.id}-${pay}`} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
               {!selected ? (
-                <p className="mt-6 text-sm text-muted">{t.calc.empty}</p>
+                <p className="mt-5 text-sm leading-7 text-muted sm:mt-6">{t.calc.empty}</p>
               ) : total == null ? (
                 <p className="mt-6 text-sm font-bold text-crimson-600">{pay === "scholarship" ? t.calc.noScholarship : "—"}</p>
               ) : (
                 <>
-                  <p className="mt-2 text-4xl font-black text-navy-950">{formatUsd(locale, total)}</p>
+                  <p className="mt-2 text-3xl font-black text-navy-950 sm:text-4xl">{formatUsd(locale, total)}</p>
                   <p className="mt-2 text-xs text-muted">
                     {pay === "termly"
                       ? fill(t.calc.breakdown, { years: formatNum(locale, selected.durationYears), tuition: formatUsd(locale, selected.tuition), prep: formatUsd(locale, selected.prepFee ?? 0) })

@@ -1,157 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { UNIVERSITY_LOGOS } from "../src/lib/university-logos";
+import { SEED_UNIVERSITIES as universities } from "../src/data/universities";
 
 const db = new PrismaClient();
-
-// Only private (foundation) universities are offered.
-// Tuition figures are approximate starting prices (USD / year) for international students
-// and should be reviewed by the Pasha Academy team each academic year.
-const universities = [
-  {
-    slug: "bilkent-university",
-    name: "دانشگاه بیلکنت",
-    nameEn: "Bilkent University",
-    city: "آنکارا",
-    type: "PRIVATE",
-    founded: 1984,
-    students: 13000,
-    tuitionFrom: 12000,
-    languages: "انگلیسی",
-    programs: "مهندسی کامپیوتر,مهندسی برق,اقتصاد,مدیریت,معماری,موسیقی,حقوق",
-    summary: "نخستین دانشگاه خصوصی (وقفی) ترکیه با آموزش تمام انگلیسی و بورسیه‌های سخاوتمندانه.",
-    description:
-      "دانشگاه بیلکنت نخستین دانشگاه غیرانتفاعی (وقفی) ترکیه است و در پژوهش و رتبه‌بندی‌های جهانی عملکرد درخشانی دارد.\n\nآموزش تمام انگلیسی است و دانشجویان ممتاز می‌توانند از بورسیه کامل شهریه و حتی کمک‌هزینه ماهانه بهره‌مند شوند.",
-    website: "https://w3.bilkent.edu.tr",
-    color: "#0b2340",
-    featured: true,
-  },
-  {
-    slug: "koc-university",
-    name: "دانشگاه کوچ",
-    nameEn: "Koç University",
-    city: "استانبول",
-    type: "PRIVATE",
-    founded: 1993,
-    students: 8000,
-    tuitionFrom: 20000,
-    languages: "انگلیسی",
-    programs: "پزشکی,حقوق,مهندسی,اقتصاد,مدیریت,علوم انسانی,پرستاری",
-    summary: "دانشگاه خصوصی برتر ترکیه در رتبه‌بندی‌های جهانی با پردیس مدرن در سارییر.",
-    description:
-      "دانشگاه کوچ با حمایت بنیاد خانواده کوچ تاسیس شده و از نظر کیفیت آموزش و پژوهش در صدر دانشگاه‌های خصوصی ترکیه قرار دارد.\n\nپردیس روملی‌فنری آن در شمال استانبول قرار دارد و بورسیه‌های متنوعی برای دانشجویان بین‌المللی ارائه می‌کند.",
-    website: "https://www.ku.edu.tr",
-    color: "#1c2b4b",
-    featured: true,
-  },
-  {
-    slug: "sabanci-university",
-    name: "دانشگاه سابانجی",
-    nameEn: "Sabancı University",
-    city: "استانبول",
-    type: "PRIVATE",
-    founded: 1994,
-    students: 5000,
-    tuitionFrom: 18000,
-    languages: "انگلیسی",
-    programs: "مهندسی کامپیوتر,مهندسی مکاترونیک,مهندسی مواد,مدیریت,اقتصاد,علوم اجتماعی",
-    summary: "دانشگاهی میان‌رشته‌ای و پژوهش‌محور با آموزش تمام انگلیسی.",
-    description:
-      "دانشگاه سابانجی با رویکرد آموزشی میان‌رشته‌ای شناخته می‌شود؛ دانشجویان سال اول را به صورت عمومی گذرانده و سپس رشته خود را انتخاب می‌کنند.\n\nپردیس توزلا در بخش آسیایی استانبول قرار دارد.",
-    website: "https://www.sabanciuniv.edu",
-    color: "#10335c",
-    featured: false,
-  },
-  {
-    slug: "istanbul-medipol-university",
-    name: "دانشگاه مدیپل استانبول",
-    nameEn: "Istanbul Medipol University",
-    city: "استانبول",
-    type: "PRIVATE",
-    founded: 2009,
-    students: 35000,
-    tuitionFrom: 5000,
-    languages: "ترکی,انگلیسی",
-    programs: "پزشکی,دندانپزشکی,داروسازی,فیزیوتراپی,پرستاری,مهندسی,حقوق",
-    summary: "دانشگاه خصوصی متمرکز بر علوم پزشکی با شبکه بیمارستان‌های مدیپل.",
-    description:
-      "دانشگاه مدیپل با پشتوانه گروه بیمارستانی مدیپل، در رشته‌های پزشکی، دندانپزشکی و علوم سلامت شناخته شده است.\n\nپذیرش بدون آزمون ورودی و بر اساس سوابق تحصیلی انجام می‌شود و بورسیه‌های ابتدای ثبت‌نام قابل دریافت است.",
-    website: "https://www.medipol.edu.tr",
-    color: "#003b71",
-    featured: true,
-  },
-  {
-    slug: "bahcesehir-university",
-    name: "دانشگاه باهچه‌شهیر",
-    nameEn: "Bahçeşehir University",
-    city: "استانبول",
-    type: "PRIVATE",
-    founded: 1998,
-    students: 25000,
-    tuitionFrom: 6000,
-    languages: "انگلیسی,ترکی",
-    programs: "مهندسی نرم‌افزار,معماری,طراحی داخلی,مدیریت بازرگانی,روانشناسی,پزشکی,ارتباطات",
-    summary: "دانشگاه خصوصی بین‌المللی در سواحل بسفر با شعب در چند کشور.",
-    description:
-      "دانشگاه باهچه‌شهیر (BAU) پردیس اصلی خود را در بشیکتاش و در ساحل بسفر دارد و با دانشگاه‌های متعدد اروپایی و آمریکایی برنامه تبادل دانشجو اجرا می‌کند.\n\nبرنامه‌های انگلیسی زبان متنوع و بورسیه ورودی از مزایای آن است.",
-    website: "https://bau.edu.tr",
-    color: "#004a8f",
-    featured: false,
-  },
-  {
-    slug: "yeditepe-university",
-    name: "دانشگاه یدی‌تپه",
-    nameEn: "Yeditepe University",
-    city: "استانبول",
-    type: "PRIVATE",
-    founded: 1996,
-    students: 20000,
-    tuitionFrom: 7000,
-    languages: "انگلیسی,ترکی",
-    programs: "پزشکی,دندانپزشکی,داروسازی,مهندسی,حقوق,هنرهای زیبا,اقتصاد",
-    summary: "دانشگاه خصوصی با پردیس بزرگ در بخش آسیایی استانبول و دانشکده‌های پزشکی معتبر.",
-    description:
-      "دانشگاه یدی‌تپه در منطقه آتاشهیر استانبول قرار دارد و به‌خصوص در رشته‌های پزشکی و دندانپزشکی برای دانشجویان ایرانی محبوب است.\n\nپردیس بزرگ و امکانات ورزشی و رفاهی از ویژگی‌های آن است.",
-    website: "https://yeditepe.edu.tr",
-    color: "#0a4d8c",
-    featured: false,
-  },
-  {
-    slug: "altinbas-university",
-    name: "دانشگاه آلتین‌باش",
-    nameEn: "Altınbaş University",
-    city: "استانبول",
-    type: "PRIVATE",
-    founded: 2008,
-    students: 12000,
-    tuitionFrom: 4500,
-    languages: "انگلیسی,ترکی",
-    programs: "دندانپزشکی,داروسازی,مهندسی کامپیوتر,حقوق,مدیریت,معماری",
-    summary: "دانشگاه خصوصی با شهریه مناسب و بورسیه‌های گسترده برای دانشجویان خارجی.",
-    description:
-      "دانشگاه آلتین‌باش در منطقه باغجلار و مجیدیه‌کوی استانبول پردیس دارد و گزینه‌ای اقتصادی برای رشته‌های مهندسی و علوم پزشکی است.\n\nبرنامه‌های انگلیسی زبان و تخفیف‌های شهریه برای دانشجویان بین‌المللی ارائه می‌کند.",
-    website: "https://www.altinbas.edu.tr",
-    color: "#8a1c24",
-    featured: false,
-  },
-  {
-    slug: "istinye-university",
-    name: "دانشگاه ایستینیه",
-    nameEn: "İstinye University",
-    city: "استانبول",
-    type: "PRIVATE",
-    founded: 2015,
-    students: 15000,
-    tuitionFrom: 5500,
-    languages: "انگلیسی,ترکی",
-    programs: "پزشکی,دندانپزشکی,داروسازی,پرستاری,مهندسی,روانشناسی",
-    summary: "دانشگاه جوان و پویا با تمرکز بر علوم سلامت و بیمارستان‌های آموزشی لیو.",
-    description:
-      "دانشگاه ایستینیه با پشتوانه گروه بیمارستان‌های MLP Care (Liv و Medical Park) فرصت‌های کارآموزی بالینی گسترده‌ای فراهم می‌کند.\n\nپذیرش بر اساس معدل و بدون آزمون ورودی انجام می‌شود.",
-    website: "https://www.istinye.edu.tr",
-    color: "#1b5e7a",
-    featured: false,
-  },
-];
 
 // ---------------------------------------------------------------------------
 // SAMPLE program catalogue. Every row is stored with `sample: true` and shown with a
@@ -268,7 +120,8 @@ async function main() {
 
   let programCount = 0;
   for (const u of universities) {
-    const saved = await db.university.upsert({ where: { slug: u.slug }, update: u, create: u });
+    const data = { ...u, logo: UNIVERSITY_LOGOS[u.slug] ?? null };
+    const saved = await db.university.upsert({ where: { slug: u.slug }, update: data, create: data });
     // Only sample rows are replaced, so real programs entered by the admin survive a re-seed.
     await db.program.deleteMany({ where: { universityId: saved.id, sample: true } });
     const rows = samplePrograms(u);

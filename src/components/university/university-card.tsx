@@ -12,9 +12,19 @@ export type UniversityCardData = {
   languages: string;
   summary: string;
   color: string;
+  logo?: string | null;
 };
 
-export function UniMonogram({ name, color, className }: { name: string; color: string; className?: string }) {
+/** University logo when one is set, otherwise brand-coloured initials. */
+export function UniMonogram({ name, color, logo, className }: { name: string; color: string; logo?: string | null; className?: string }) {
+  if (logo) {
+    return (
+      <span className={cn("grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white p-1.5 shadow-soft ring-1 ring-black/5", className)} aria-hidden>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={logo} alt="" loading="lazy" className="h-full w-full object-contain" />
+      </span>
+    );
+  }
   const initials = name
     .replace(/\(.*\)/, "")
     .split(/\s+/)
@@ -45,7 +55,7 @@ export function UniversityCard({ u, href }: { u: UniversityCardData; href?: stri
         aria-hidden
       />
       <div className="flex items-start gap-4">
-        <UniMonogram name={u.nameEn} color={u.color} />
+        <UniMonogram name={u.nameEn} color={u.color} logo={u.logo} />
         <div className="min-w-0">
           <h3 className="font-extrabold text-navy-950 transition group-hover:text-crimson-500">{u.name}</h3>
           <p className="mt-0.5 truncate text-xs text-muted" dir="ltr">{u.nameEn}</p>
@@ -62,7 +72,7 @@ export function UniversityCard({ u, href }: { u: UniversityCardData; href?: stri
       <div className="mt-auto flex items-center justify-between border-t border-line pt-4">
         <span className="inline-flex items-center gap-1.5 text-sm text-muted">
           <Wallet className="h-4 w-4 text-gold-500" />
-          {u.tuitionFrom ? <>شهریه از <b className="text-navy-950">{formatNumber(u.tuitionFrom)}$</b></> : "شهریه: استعلام"}
+          {u.tuitionFrom ? <>شهریه از <b className="text-navy-950">{formatNumber(u.tuitionFrom)} دلار</b></> : "شهریه: استعلام"}
         </span>
         <ArrowLeft className="h-5 w-5 text-navy-300 transition group-hover:-translate-x-1 group-hover:text-crimson-500" />
       </div>

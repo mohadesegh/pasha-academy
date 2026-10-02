@@ -21,6 +21,7 @@ export type UniversityFormValues = {
   summary: string;
   description: string;
   website: string | null;
+  logo: string | null;
   color: string;
   featured: boolean;
   published: boolean;
@@ -28,7 +29,7 @@ export type UniversityFormValues = {
 
 export const EMPTY_UNIVERSITY: UniversityFormValues = {
   slug: "", name: "", nameEn: "", city: "استانبول", type: "PRIVATE", founded: null, students: null, tuitionFrom: null,
-  languages: "انگلیسی,ترکی", programs: "", summary: "", description: "", website: "", color: "#0b2340", featured: false, published: true,
+  languages: "انگلیسی,ترکی", programs: "", summary: "", description: "", website: "", logo: "", color: "#0b2340", featured: false, published: true,
 };
 
 export function UniversityForm({ initial }: { initial: UniversityFormValues }) {
@@ -36,6 +37,7 @@ export function UniversityForm({ initial }: { initial: UniversityFormValues }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [color, setColor] = useState(initial.color);
+  const [logo, setLogo] = useState(initial.logo ?? "");
   const isEdit = Boolean(initial.id);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -85,6 +87,15 @@ export function UniversityForm({ initial }: { initial: UniversityFormValues }) {
         </Field>
         <Field label="وب‌سایت رسمی" htmlFor="website">
           <input id="website" name="website" defaultValue={initial.website ?? ""} className="input" dir="ltr" placeholder="https://" />
+        </Field>
+        <Field label="لوگو" htmlFor="logo" hint="آدرس تصویر لوگو (https://...) یا مسیر فایل در public مثل /images/universities/koc.png — ترجیحا PNG/SVG با پس‌زمینه شفاف">
+          <div className="flex items-center gap-3">
+            <input id="logo" name="logo" value={logo} onChange={(e) => setLogo(e.target.value)} className="input" dir="ltr" placeholder="/images/universities/..." />
+            {logo && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logo} alt="" className="h-12 w-12 shrink-0 rounded-xl border border-line bg-white object-contain p-1" />
+            )}
+          </div>
         </Field>
         <Field label="شهر" htmlFor="city" required>
           <input id="city" name="city" list="cities" defaultValue={initial.city} required className="input" />

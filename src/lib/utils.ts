@@ -10,7 +10,7 @@ export function toFa(value: string | number) {
 }
 
 export function formatNumber(n: number) {
-  return toFa(n.toLocaleString("en-US"));
+  return toFa(n.toLocaleString("en-US")).replace(/,/g, "٬");
 }
 
 export function formatDate(d: Date | string) {

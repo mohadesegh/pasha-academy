@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Megaphone } from "lucide-react";
 import { useLocale } from "@/components/i18n/locale-provider";
@@ -40,16 +40,19 @@ export function AnnouncementsSlider() {
   const Arrow = locale === "fa" ? ArrowLeft : ArrowRight;
   const item = items[index];
 
-  function onDragEnd(_: unknown, info: PanInfo) {
-    if (Math.abs(info.offset.x) < 50) return;
+  // Swipe switches as soon as the threshold is passed, without dragging the text along first.
+  const swiped = useRef(false);
+  function onPan(_: unknown, info: PanInfo) {
+    if (swiped.current || Math.abs(info.offset.x) < 40 || Math.abs(info.offset.x) < Math.abs(info.offset.y)) return;
+    swiped.current = true;
     go(info.offset.x * sign < 0 ? 1 : -1);
   }
 
   return (
-    <section className="relative z-10 -mt-8 pb-6" aria-label={t.announcements.label}>
+    <section className="relative z-10 pb-6" aria-label={t.announcements.label}>
       <div className="container-x">
         <div
-          className="relative overflow-hidden rounded-[2rem] border border-white/70 bg-surface shadow-soft dark:border-white/10"
+          className="relative overflow-hidden rounded-[1.5rem] border sm:rounded-[2rem] border-white/70 bg-surface shadow-soft dark:border-white/10"
           onMouseEnter={pause}
           onMouseLeave={resume}
           onFocus={pause}
@@ -57,20 +60,30 @@ export function AnnouncementsSlider() {
           role="region"
           aria-roledescription="carousel"
         >
-          <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:gap-6 sm:p-5">
-            <div className="flex shrink-0 items-center gap-3">
-              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-navy-950 text-gold-300">
-                <Megaphone className="h-6 w-6" />
+          {/* Mobile/tablet: header + arrows on top, full-width body, then CTA. Desktop: one row. */}
+          <div className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-3 p-4 sm:gap-y-4 sm:p-6 lg:grid-cols-[auto_1fr_auto_auto] lg:gap-x-6 lg:p-5">
+            <div className="flex items-center gap-3 lg:order-1">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-navy-950 text-gold-300 sm:h-12 sm:w-12 sm:rounded-2xl">
+                <Megaphone className="h-5 w-5 sm:h-6 sm:w-6" />
               </span>
               <div>
                 <p className="text-sm font-black text-navy-950">{t.announcements.label}</p>
                 <p className="text-xs font-bold text-muted" aria-live="polite">
-                  {formatNum(locale, index + 1)} / {formatNum(locale, n)}
+                  {formatNum(locale, index + 1)} {locale === "fa" ? "از" : "/"} {formatNum(locale, n)}
                 </p>
               </div>
             </div>
 
-            <div className="relative min-h-[92px] flex-1 overflow-hidden sm:min-h-[64px] sm:border-s sm:border-navy-100 sm:ps-6 dark:sm:border-white/10">
+            <div className="flex items-center gap-2 lg:order-4">
+              <button type="button" onClick={() => go(-1)} aria-label={t.announcements.prev} className="grid h-9 w-9 place-items-center rounded-full bg-navy-50 text-navy-950 transition hover:bg-navy-100 sm:h-10 sm:w-10">
+                <Prev className="h-5 w-5" />
+              </button>
+              <button type="button" onClick={() => go(1)} aria-label={t.announcements.next} className="grid h-9 w-9 place-items-center rounded-full bg-navy-50 text-navy-950 transition hover:bg-navy-100 sm:h-10 sm:w-10">
+                <Next className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="relative col-span-2 min-h-[118px] overflow-hidden border-t border-navy-100 pt-3 sm:min-h-[92px] sm:pt-4 lg:order-2 lg:col-span-1 lg:min-h-[64px] lg:border-s lg:border-t-0 lg:ps-6 lg:pt-0 dark:border-white/10">
               <AnimatePresence initial={false} custom={dir} mode="popLayout">
                 <motion.div
                   key={index}
@@ -84,41 +97,32 @@ export function AnnouncementsSlider() {
                   animate="center"
                   exit="exit"
                   transition={{ type: "spring", stiffness: 220, damping: 28 }}
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.2}
-                  onDragEnd={onDragEnd}
+                  onPanStart={() => (swiped.current = false)}
+                  onPan={onPan}
                   className="touch-pan-y select-none"
                 >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-gold-100 px-2.5 py-0.5 text-[11px] font-black text-gold-600 dark:text-gold-300">
+                  <span className="inline-block rounded-full bg-gold-100 px-2.5 py-0.5 text-[11px] font-black text-gold-600 lg:hidden dark:text-gold-300">
+                    {item.tag}
+                  </span>
+                  <div className="mt-2 flex items-center gap-2 lg:mt-0">
+                    <span className="hidden shrink-0 rounded-full bg-gold-100 px-2.5 py-0.5 text-[11px] font-black text-gold-600 lg:inline-block dark:text-gold-300">
                       {item.tag}
                     </span>
-                    <h3 className="text-base font-black text-navy-950 sm:text-lg">{item.title}</h3>
+                    <h3 className="line-clamp-2 text-[15px] font-black leading-7 text-navy-950 sm:text-lg lg:line-clamp-1">{item.title}</h3>
                   </div>
-                  <p className="mt-1.5 text-sm leading-7 text-muted">{item.text}</p>
+                  <p className="mt-1 line-clamp-2 text-[13px] leading-6 text-muted sm:text-sm sm:leading-7 lg:line-clamp-1">{item.text}</p>
                 </motion.div>
               </AnimatePresence>
             </div>
 
-            <div className="flex shrink-0 items-center justify-between gap-3">
-              <Link href={item.href} className="btn-navy px-5 py-2.5 text-sm">
-                {t.announcements.more}
-                <Arrow className="h-4 w-4" />
-              </Link>
-              <div className="flex items-center gap-2">
-                <button type="button" onClick={() => go(-1)} aria-label={t.announcements.prev} className="grid h-10 w-10 place-items-center rounded-full bg-navy-50 text-navy-950 transition hover:bg-navy-100">
-                  <Prev className="h-5 w-5" />
-                </button>
-                <button type="button" onClick={() => go(1)} aria-label={t.announcements.next} className="grid h-10 w-10 place-items-center rounded-full bg-navy-50 text-navy-950 transition hover:bg-navy-100">
-                  <Next className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
+            <Link href={item.href} className="btn-navy col-span-2 w-full justify-center px-5 py-2.5 text-sm sm:w-auto sm:justify-self-start lg:order-3 lg:col-span-1">
+              {t.announcements.more}
+              <Arrow className="h-4 w-4" />
+            </Link>
           </div>
 
           {/* Progress segments double as dots */}
-          <div className="flex gap-1.5 px-4 pb-4 sm:px-5">
+          <div className="flex gap-1.5 px-4 pb-4 sm:px-6 lg:px-5">
             {items.map((_, i) => (
               <button
                 key={i}
