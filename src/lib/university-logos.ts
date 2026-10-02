@@ -13,8 +13,6 @@ export const UNIVERSITY_LOGOS: Record<string, string> = {
   "istanbul-kent-university": "/images/universities/istanbul-kent-university.png",
   "istanbul-medipol-university": "/images/universities/istanbul-medipol-university.png",
   "istinye-university": "/images/universities/istinye-university.png",
-  "koc-university": "/images/universities/koc-university.png",
-  "sabanci-university": "/images/universities/sabanci-university.png",
   "yeditepe-university": "/images/universities/yeditepe-university.gif",
 };
 

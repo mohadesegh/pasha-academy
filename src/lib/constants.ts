@@ -76,7 +76,8 @@ export const AGENT_STATUSES: Record<string, { label: string; tone: Tone }> = {
 export const PROGRAM_DEGREES = {
   ASSOCIATE: { fa: "کاردانی", en: "Associate" },
   BACHELOR: { fa: "کارشناسی", en: "Bachelor" },
-  MASTER: { fa: "کارشناسی ارشد", en: "Master" },
+  MASTER: { fa: "کارشناسی ارشد با تز", en: "Master's (thesis)" },
+  MASTER_NON_THESIS: { fa: "کارشناسی ارشد بدون تز", en: "Master's (non-thesis)" },
   PHD: { fa: "دکتری", en: "PhD" },
 } as const;
 export type ProgramDegree = keyof typeof PROGRAM_DEGREES;
@@ -90,7 +91,7 @@ export type ProgramLanguage = keyof typeof PROGRAM_LANGUAGES;
 export const PROGRAM_LANGUAGE_KEYS = Object.keys(PROGRAM_LANGUAGES) as ProgramLanguage[];
 
 export const ROOM_TYPES =["یک نفره", "دو نفره", "سه نفره", "چهار نفره"];
-export const DEGREES = ["کاردانی", "کارشناسی", "کارشناسی ارشد", "دکتری", "زبان ترکی (تومر)"];
+export const DEGREES = ["کاردانی", "کارشناسی", "کارشناسی ارشد با تز", "کارشناسی ارشد بدون تز", "دکتری", "زبان ترکی (تومر)"];
 export const TURKEY_CITIES = ["استانبول", "آنکارا", "ازمیر", "آنتالیا", "بورسا", "اسکی‌شهیر", "قونیه", "ترابزون"];
 
 export const UPLOAD_LIMIT_BYTES = 5 * 1024 * 1024;
@@ -113,7 +114,7 @@ export const SITE = {
   whatsapp: "905010211100",
   whatsappDisplay: "+90 501 021 11 00",
   email: "info@pasha-academy.com",
-  instagram: "pasha.academy",
+  instagram: "pashaacademy",
   address: "استانبول، شیشلی، خیابان حلاسکارغازی",
   addressEn: "Halaskargazi Cd., Şişli, İstanbul, Türkiye",
 };

@@ -22,42 +22,6 @@ export const SEED_UNIVERSITIES = [
     featured: true,
   },
   {
-    slug: "koc-university",
-    name: "دانشگاه کوچ",
-    nameEn: "Koç University",
-    city: "استانبول",
-    type: "PRIVATE",
-    founded: 1993,
-    students: 8000,
-    tuitionFrom: 20000,
-    languages: "انگلیسی",
-    programs: "پزشکی,حقوق,مهندسی,اقتصاد,مدیریت,علوم انسانی,پرستاری",
-    summary: "دانشگاه خصوصی برتر ترکیه در رتبه‌بندی‌های جهانی با پردیس مدرن در سارییر.",
-    description:
-      "دانشگاه کوچ با حمایت بنیاد خانواده کوچ تاسیس شده و از نظر کیفیت آموزش و پژوهش در صدر دانشگاه‌های خصوصی ترکیه قرار دارد.\n\nپردیس روملی‌فنری آن در شمال استانبول قرار دارد و بورسیه‌های متنوعی برای دانشجویان بین‌المللی ارائه می‌کند.",
-    website: "https://www.ku.edu.tr",
-    color: "#1c2b4b",
-    featured: true,
-  },
-  {
-    slug: "sabanci-university",
-    name: "دانشگاه سابانجی",
-    nameEn: "Sabancı University",
-    city: "استانبول",
-    type: "PRIVATE",
-    founded: 1994,
-    students: 5000,
-    tuitionFrom: 18000,
-    languages: "انگلیسی",
-    programs: "مهندسی کامپیوتر,مهندسی مکاترونیک,مهندسی مواد,مدیریت,اقتصاد,علوم اجتماعی",
-    summary: "دانشگاهی میان‌رشته‌ای و پژوهش‌محور با آموزش تمام انگلیسی.",
-    description:
-      "دانشگاه سابانجی با رویکرد آموزشی میان‌رشته‌ای شناخته می‌شود؛ دانشجویان سال اول را به صورت عمومی گذرانده و سپس رشته خود را انتخاب می‌کنند.\n\nپردیس توزلا در بخش آسیایی استانبول قرار دارد.",
-    website: "https://www.sabanciuniv.edu",
-    color: "#10335c",
-    featured: false,
-  },
-  {
     slug: "istanbul-medipol-university",
     name: "دانشگاه مدیپل استانبول",
     nameEn: "Istanbul Medipol University",
@@ -147,4 +111,169 @@ export const SEED_UNIVERSITIES = [
     color: "#1b5e7a",
     featured: false,
   },
+  {
+    slug: "istanbul-kent-university",
+    name: "دانشگاه استانبول کنت",
+    nameEn: "Istanbul Kent University",
+    city: "استانبول",
+    type: "PRIVATE",
+    founded: 2016,
+    students: null,
+    tuitionFrom: 5000,
+    languages: "انگلیسی,ترکی",
+    programs: "دندانپزشکی,پرستاری,فیزیوتراپی,مهندسی کامپیوتر,معماری,روانشناسی,مدیریت",
+    summary: "دانشگاه خصوصی جوان در مرکز استانبول با رشته‌های علوم سلامت، مهندسی و هنر.",
+    description:
+      "دانشگاه استانبول کنت یکی از دانشگاه‌های خصوصی (وقفی) جوان استانبول است که در کنار علوم سلامت و دندانپزشکی، رشته‌های مهندسی، معماری و علوم انسانی را ارائه می‌دهد.\n\nپذیرش دانشجویان بین‌المللی بر اساس سوابق تحصیلی و بدون آزمون ورودی انجام می‌شود.",
+    website: "https://kent.edu.tr",
+    color: "#8a1c24",
+    featured: false,
+  },
+  {
+    slug: "acibadem-university",
+    name: "دانشگاه آجی‌بادم",
+    nameEn: "Acıbadem University",
+    city: "استانبول",
+    type: "PRIVATE",
+    founded: 2007,
+    students: null,
+    tuitionFrom: 9000,
+    languages: "انگلیسی,ترکی",
+    programs: "پزشکی,دندانپزشکی,داروسازی,پرستاری,فیزیوتراپی,مهندسی پزشکی,روانشناسی",
+    summary: "دانشگاه تخصصی علوم پزشکی با پشتوانه گروه بیمارستان‌های آجی‌بادم.",
+    description:
+      "دانشگاه آجی‌بادم مهمت علی آیدینلار با تمرکز بر پزشکی و علوم سلامت شناخته می‌شود و دانشجویان از امکانات آموزشی و بالینی گروه بیمارستان‌های آجی‌بادم بهره می‌برند.\n\nپذیرش بر اساس معدل و مدارک تحصیلی انجام می‌شود.",
+    website: "https://www.acibadem.edu.tr",
+    color: "#0b2340",
+    featured: false,
+  },
+  {
+    slug: "istanbul-arel-university",
+    name: "دانشگاه آرل استانبول",
+    nameEn: "Istanbul Arel University",
+    city: "استانبول",
+    type: "PRIVATE",
+    founded: 2007,
+    students: null,
+    tuitionFrom: 4500,
+    languages: "انگلیسی,ترکی",
+    programs: "مهندسی کامپیوتر,مهندسی صنایع,معماری,مدیریت بازرگانی,تجارت بین‌الملل,روانشناسی,پرستاری",
+    summary: "دانشگاه خصوصی با شهریه مناسب و تنوع رشته در مهندسی، مدیریت و علوم سلامت.",
+    description:
+      "دانشگاه آرل استانبول با شهریه‌های رقابتی، گزینه‌ای مناسب برای دانشجویانی است که به دنبال تحصیل در استانبول با هزینه کمتر هستند.\n\nپذیرش بدون آزمون ورودی و بر اساس سوابق تحصیلی انجام می‌شود.",
+    website: "https://www.arel.edu.tr",
+    color: "#10335c",
+    featured: false,
+  },
+  {
+    slug: "atlas-university",
+    name: "دانشگاه اطلس",
+    nameEn: "Atlas University",
+    city: "استانبول",
+    type: "PRIVATE",
+    founded: 2018,
+    students: null,
+    tuitionFrom: 6000,
+    languages: "انگلیسی,ترکی",
+    programs: "پزشکی,دندانپزشکی,پرستاری,فیزیوتراپی,مهندسی کامپیوتر,روانشناسی",
+    summary: "دانشگاه نوپای استانبول با تمرکز ویژه بر پزشکی و علوم سلامت.",
+    description:
+      "دانشگاه اطلس استانبول یکی از جدیدترین دانشگاه‌های خصوصی شهر است که با تمرکز بر پزشکی، دندانپزشکی و علوم سلامت فعالیت می‌کند.\n\nپذیرش دانشجویان بین‌المللی بر اساس معدل و بدون آزمون ورودی است.",
+    website: "https://www.atlas.edu.tr",
+    color: "#1b5e7a",
+    featured: false,
+  },
+  {
+    slug: "istanbul-aydin-university",
+    name: "دانشگاه آیدین استانبول",
+    nameEn: "Istanbul Aydın University",
+    city: "استانبول",
+    type: "PRIVATE",
+    founded: 2007,
+    students: null,
+    tuitionFrom: 4500,
+    languages: "انگلیسی,ترکی",
+    programs: "پزشکی,دندانپزشکی,مهندسی کامپیوتر,مهندسی برق,معماری,مدیریت بازرگانی,حقوق,روانشناسی",
+    summary: "از بزرگ‌ترین دانشگاه‌های خصوصی استانبول با تنوع گسترده رشته و شهریه مناسب.",
+    description:
+      "دانشگاه آیدین استانبول با تعداد زیادی دانشکده و رشته، یکی از گزینه‌های پرطرفدار دانشجویان بین‌المللی در استانبول است.\n\nپذیرش بدون آزمون ورودی و بر اساس سوابق تحصیلی انجام می‌شود.",
+    website: "https://www.aydin.edu.tr",
+    color: "#003b71",
+    featured: false,
+  },
 ];
+
+// ---------------------------------------------------------------------------
+// SAMPLE program catalogue. Every row is stored with `sample: true` and shown with a
+// "sample" label on the site until the real price list is imported from the admin panel.
+// Prices are derived from each university's starting tuition and are NOT real quotes.
+// ---------------------------------------------------------------------------
+type Catalog = { name: string; nameEn: string; faculty: string; degree: string; years: number; factor: number; medical?: boolean };
+
+const CATALOG: Catalog[] = [
+  { name: "پزشکی", nameEn: "Medicine", faculty: "دانشکده پزشکی", degree: "BACHELOR", years: 6, factor: 3.2, medical: true },
+  { name: "دندانپزشکی", nameEn: "Dentistry", faculty: "دانشکده دندانپزشکی", degree: "BACHELOR", years: 5, factor: 2.6, medical: true },
+  { name: "داروسازی", nameEn: "Pharmacy", faculty: "دانشکده داروسازی", degree: "BACHELOR", years: 5, factor: 1.8, medical: true },
+  { name: "پرستاری", nameEn: "Nursing", faculty: "دانشکده علوم سلامت", degree: "BACHELOR", years: 4, factor: 0.9, medical: true },
+  { name: "فیزیوتراپی", nameEn: "Physiotherapy", faculty: "دانشکده علوم سلامت", degree: "BACHELOR", years: 4, factor: 1.0, medical: true },
+  { name: "مهندسی کامپیوتر", nameEn: "Computer Engineering", faculty: "دانشکده مهندسی", degree: "BACHELOR", years: 4, factor: 1.2 },
+  { name: "مهندسی نرم‌افزار", nameEn: "Software Engineering", faculty: "دانشکده مهندسی", degree: "BACHELOR", years: 4, factor: 1.2 },
+  { name: "مهندسی هوش مصنوعی", nameEn: "Artificial Intelligence Engineering", faculty: "دانشکده مهندسی", degree: "BACHELOR", years: 4, factor: 1.3 },
+  { name: "مهندسی برق و الکترونیک", nameEn: "Electrical & Electronics Engineering", faculty: "دانشکده مهندسی", degree: "BACHELOR", years: 4, factor: 1.1 },
+  { name: "مهندسی صنایع", nameEn: "Industrial Engineering", faculty: "دانشکده مهندسی", degree: "BACHELOR", years: 4, factor: 1.0 },
+  { name: "معماری", nameEn: "Architecture", faculty: "دانشکده معماری و طراحی", degree: "BACHELOR", years: 4, factor: 1.1 },
+  { name: "طراحی داخلی", nameEn: "Interior Design", faculty: "دانشکده معماری و طراحی", degree: "BACHELOR", years: 4, factor: 0.9 },
+  { name: "مدیریت بازرگانی", nameEn: "Business Administration", faculty: "دانشکده اقتصاد و مدیریت", degree: "BACHELOR", years: 4, factor: 0.9 },
+  { name: "تجارت بین‌الملل", nameEn: "International Trade", faculty: "دانشکده اقتصاد و مدیریت", degree: "BACHELOR", years: 4, factor: 0.85 },
+  { name: "روانشناسی", nameEn: "Psychology", faculty: "دانشکده علوم انسانی", degree: "BACHELOR", years: 4, factor: 1.0 },
+  { name: "حقوق", nameEn: "Law", faculty: "دانشکده حقوق", degree: "BACHELOR", years: 4, factor: 1.2 },
+  { name: "برنامه‌نویسی کامپیوتر", nameEn: "Computer Programming", faculty: "آموزشکده فنی", degree: "ASSOCIATE", years: 2, factor: 0.5 },
+  { name: "تصویربرداری پزشکی", nameEn: "Medical Imaging", faculty: "آموزشکده علوم سلامت", degree: "ASSOCIATE", years: 2, factor: 0.55, medical: true },
+  { name: "پروتز دندان", nameEn: "Dental Prosthetics", faculty: "آموزشکده علوم سلامت", degree: "ASSOCIATE", years: 2, factor: 0.55, medical: true },
+  { name: "مدیریت کسب‌وکار (MBA)", nameEn: "MBA", faculty: "تحصیلات تکمیلی", degree: "MASTER", years: 2, factor: 0.75 },
+  { name: "مهندسی کامپیوتر (ارشد)", nameEn: "Computer Engineering (MSc)", faculty: "تحصیلات تکمیلی", degree: "MASTER", years: 2, factor: 0.8 },
+  { name: "روانشناسی بالینی (ارشد)", nameEn: "Clinical Psychology (MSc)", faculty: "تحصیلات تکمیلی", degree: "MASTER", years: 2, factor: 0.8 },
+  // Non-thesis master's: coursework + term project, usually finished in 1–1.5 years.
+  { name: "مدیریت کسب‌وکار (MBA)", nameEn: "MBA", faculty: "تحصیلات تکمیلی", degree: "MASTER_NON_THESIS", years: 1, factor: 0.85 },
+  { name: "مهندسی کامپیوتر (ارشد)", nameEn: "Computer Engineering (MSc)", faculty: "تحصیلات تکمیلی", degree: "MASTER_NON_THESIS", years: 1, factor: 0.9 },
+  { name: "مدیریت پروژه (ارشد)", nameEn: "Project Management (MSc)", faculty: "تحصیلات تکمیلی", degree: "MASTER_NON_THESIS", years: 1, factor: 0.8 },
+  { name: "مدیریت (دکتری)", nameEn: "Management (PhD)", faculty: "تحصیلات تکمیلی", degree: "PHD", years: 4, factor: 0.9 },
+];
+
+// Universities that already offer their own merit scholarships don't get Pasha scholarship seats.
+const NO_PASHA_SEATS = new Set(["bilkent-university"]);
+const ENGLISH_ONLY = new Set(["bilkent-university"]);
+const MEDICAL = new Set(["istanbul-medipol-university", "istinye-university", "altinbas-university", "yeditepe-university", "bahcesehir-university", "acibadem-university", "atlas-university", "istanbul-aydin-university", "istanbul-kent-university"]);
+
+const round50 = (n: number) => Math.round(n / 50) * 50;
+
+export function samplePrograms(u: { slug: string; tuitionFrom: number | null }) {
+  const base = Math.max(u.tuitionFrom ?? 5000, 3000);
+  const rows = [];
+  let i = 0;
+  for (const c of CATALOG) {
+    if (c.medical && !MEDICAL.has(u.slug)) continue;
+    for (const language of ENGLISH_ONLY.has(u.slug) ? ["EN"] : ["EN", "TR"]) {
+      i++;
+      const tuition = round50(base * c.factor * (language === "TR" ? 0.85 : 1));
+      const prepFee = round50(base * 0.6);
+      const termTotal = tuition * c.years + prepFee;
+      rows.push({
+        name: `${c.name} (${language === "EN" ? "انگلیسی" : "ترکی"})`,
+        nameEn: c.nameEn,
+        faculty: c.faculty,
+        degree: c.degree,
+        language,
+        durationYears: c.years,
+        tuition,
+        cashTotal: round50(termTotal * 0.85),
+        deposit: 1000,
+        prepFee,
+        // Roughly every other program gets a Pasha 100% scholarship seat (about 60% cheaper overall).
+        scholarshipPrice: !NO_PASHA_SEATS.has(u.slug) && i % 2 === 0 ? round50(termTotal * 0.4) : null,
+        sample: true,
+      });
+    }
+  }
+  return rows;
+}

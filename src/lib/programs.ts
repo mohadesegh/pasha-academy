@@ -4,7 +4,7 @@ import { db } from "./db";
 import { safeRead } from "./universities";
 import { PROGRAM_DEGREE_KEYS, PROGRAM_LANGUAGE_KEYS } from "./constants";
 import { logoFor } from "./university-logos";
-import { SEED_UNIVERSITIES } from "@/data/universities";
+import { SEED_UNIVERSITIES, samplePrograms } from "@/data/universities";
 
 export const PAGE_SIZE = 25;
 
@@ -127,7 +127,7 @@ export async function scholarshipStats() {
 
 /** Compact rows for the client-side tuition calculator. */
 export async function calculatorPrograms() {
-  return safeRead(
+  const rows = await safeRead(
     () =>
       db.program.findMany({
         where: { active: true, university: { published: true } },
@@ -139,6 +139,29 @@ export async function calculatorPrograms() {
       }),
     [],
   );
+  if (rows.length > 0) return rows;
+
+  // No programs (DB unavailable or not imported yet): use the sample catalogue so the calculator still works.
+  // Programs are linked to the DB university ids when those exist, otherwise to the slug (the fallback university id).
+  const idBySlug = new Map(
+    (await safeRead(() => db.university.findMany({ where: { published: true }, select: { id: true, slug: true } }), [])).map((u) => [u.slug, u.id]),
+  );
+  return SEED_UNIVERSITIES.flatMap((u) =>
+    samplePrograms(u).map((p, i) => ({
+      id: `${u.slug}-${i}`,
+      universityId: idBySlug.get(u.slug) ?? u.slug,
+      name: p.name,
+      nameEn: p.nameEn as string | null,
+      degree: p.degree,
+      language: p.language,
+      durationYears: p.durationYears,
+      tuition: p.tuition,
+      prepFee: p.prepFee as number | null,
+      cashTotal: p.cashTotal as number | null,
+      scholarshipPrice: p.scholarshipPrice as number | null,
+      sample: true,
+    })),
+  ).sort((a, b) => a.name.localeCompare(b.name, "fa"));
 }
 export type CalcProgram = Awaited<ReturnType<typeof calculatorPrograms>>[number];
 
@@ -225,21 +248,9 @@ export async function featuredUniversities(take = 6) {
 type MarqueeUniversity = { id: string; slug: string; name: string; nameEn: string; color: string; logo: string | null; href?: string };
 
 /** Shown when the database is unreachable or has no universities yet, so the logo row never disappears. */
-const FALLBACK_UNIVERSITIES: MarqueeUniversity[] = [
-  ["bahcesehir-university", "دانشگاه باهچه‌شهیر", "Bahçeşehir University", "#004a8f"],
-  ["istanbul-medipol-university", "دانشگاه مدیپل استانبول", "Istanbul Medipol University", "#003b71"],
-  ["istanbul-kent-university", "دانشگاه استانبول کنت", "Istanbul Kent University", "#8a1c24"],
-  ["acibadem-university", "دانشگاه آجی‌بادم", "Acıbadem University", "#0b2340"],
-  ["istanbul-arel-university", "دانشگاه آرل استانبول", "Istanbul Arel University", "#10335c"],
-  ["atlas-university", "دانشگاه اطلس", "Atlas University", "#1b5e7a"],
-  ["istanbul-aydin-university", "دانشگاه آیدین استانبول", "Istanbul Aydın University", "#003b71"],
-  ["koc-university", "دانشگاه کوچ", "Koç University", "#1c2b4b"],
-  ["yeditepe-university", "دانشگاه یدی‌تپه", "Yeditepe University", "#0a4d8c"],
-  ["sabanci-university", "دانشگاه سابانجی", "Sabancı University", "#10335c"],
-  ["altinbas-university", "دانشگاه آلتین‌باش", "Altınbaş University", "#8a1c24"],
-  ["istinye-university", "دانشگاه ایستینیه", "İstinye University", "#1b5e7a"],
-  ["bilkent-university", "دانشگاه بیلکنت", "Bilkent University", "#0b2340"],
-].map(([slug, name, nameEn, color]) => ({ id: slug, slug, name, nameEn, color, logo: logoFor({ slug }), href: "/universities" }));
+const FALLBACK_UNIVERSITIES: MarqueeUniversity[] = SEED_UNIVERSITIES.map((u) => ({
+  id: u.slug, slug: u.slug, name: u.name, nameEn: u.nameEn, color: u.color, logo: logoFor(u), href: "/universities",
+}));
 
 export async function marqueeUniversities(): Promise<MarqueeUniversity[]> {
   const rows = await safeRead<MarqueeUniversity[]>(
