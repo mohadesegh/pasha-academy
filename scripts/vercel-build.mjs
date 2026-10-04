@@ -8,8 +8,11 @@ function run(module, args) {
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
-for (const key of ["DATABASE_URL", "AUTH_SECRET", "BLOB_READ_WRITE_TOKEN", "CRON_SECRET"]) {
+for (const key of ["DATABASE_URL", "AUTH_SECRET", "CRON_SECRET"]) {
   if (!process.env[key]) throw new Error(`Set ${key} in Vercel Settings > Environment Variables. See DEPLOYMENT.fa.md.`);
+}
+if (!process.env.BLOB_READ_WRITE_TOKEN && !process.env.BLOB_STORE_ID) {
+  throw new Error("Connect a private Vercel Blob store to this project (BLOB_READ_WRITE_TOKEN or BLOB_STORE_ID). See DEPLOYMENT.fa.md.");
 }
 if (process.env.AUTH_SECRET.length < 32 || process.env.AUTH_SECRET.startsWith("change-me")) {
   throw new Error("AUTH_SECRET must be a new random secret of at least 32 characters.");

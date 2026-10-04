@@ -23,6 +23,11 @@ function sniff(buf: Buffer): string | null {
 
 export class UploadError extends Error {}
 
+/** A connected Blob store authenticates with a read-write token or, on newer stores, OIDC + store id. */
+export function blobConfigured() {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+}
+
 export function isOwnedStagingPath(pathname: unknown, userId: string): pathname is string {
   return typeof pathname === "string" && pathname.startsWith(`staging/${userId}/`) &&
     /^[a-zA-Z0-9/-]+$/.test(pathname) && pathname.split("/").length === 3 &&
@@ -38,7 +43,7 @@ export async function saveUpload(file: File) {
 
   const storedName = `${randomUUID()}.${ALLOWED_MIME[mime]}`;
   let location = storedName;
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  if (blobConfigured()) {
     const blob = await put(`documents/${storedName}`, buf, {
       access: "private", contentType: mime, addRandomSuffix: false,
     });

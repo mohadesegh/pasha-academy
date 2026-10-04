@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { list, del } from "@vercel/blob";
 import { db } from "@/lib/db";
+import { blobConfigured } from "@/lib/storage";
 
 export const maxDuration = 60;
 
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
   await db.rateLimit.deleteMany({ where: { expiresAt: { lt: new Date() } } });
   let removed = 0;
   let cursor: string | undefined;
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  if (blobConfigured()) {
     for (let page = 0; page < 5; page++) {
       const result = await list({ prefix: "staging/", limit: 1000, cursor });
       const expired = result.blobs.filter((b) => b.uploadedAt.getTime() < Date.now() - 86400000);

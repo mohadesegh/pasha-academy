@@ -1,6 +1,6 @@
 "use client";
 
-import { upload } from "@vercel/blob/client";
+import { upload, uploadPresigned } from "@vercel/blob/client";
 import { UPLOAD_LIMIT_BYTES } from "./constants";
 
 /** Replace multipart file bodies with private Blob references before calling our API. */
@@ -14,7 +14,7 @@ export async function prepareUploads(form: FormData, onProgress?: (percent: numb
   for (let i = 0; i < entries.length; i++) {
     const [key, file] = entries[i];
     if (file.size > UPLOAD_LIMIT_BYTES) throw new Error("حجم هر فایل حداکثر ۵ مگابایت است");
-    const blob = await upload(`staging/${config.userId}/${crypto.randomUUID()}`, file, {
+    const blob = await (config.presigned ? uploadPresigned : upload)(`staging/${config.userId}/${crypto.randomUUID()}`, file, {
       access: "private", handleUploadUrl: "/api/uploads", contentType: file.type || "application/octet-stream",
       onUploadProgress: ({ percentage }) => onProgress?.(Math.round((i + percentage / 100) / entries.length * 95)),
     });
