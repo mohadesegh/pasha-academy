@@ -4,7 +4,7 @@ import { leadSchema, firstError } from "@/lib/validation";
 
 /** Public consultation / contact form. */
 export async function POST(req: Request) {
-  if (!rateLimit(req, "leads", 5)) return fail("تعداد درخواست‌ها زیاد است، کمی بعد تلاش کنید", 429);
+  if (!await rateLimit(req, "leads", 5)) return fail("تعداد درخواست‌ها زیاد است، کمی بعد تلاش کنید", 429);
 
   const body = await req.json().catch(() => ({}));
   // Honeypot field — bots fill every input.

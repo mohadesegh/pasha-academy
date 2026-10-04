@@ -3,12 +3,13 @@ import { db } from "@/lib/db";
 import { apiUser } from "@/lib/auth";
 import { ok, fail, unauthorized, rateLimit } from "@/lib/http";
 import { applicationSchema, docKindSchema, firstError } from "@/lib/validation";
-import { saveUpload, deleteUpload, UploadError } from "@/lib/storage";
+import { saveUpload, deleteUpload, resolveUpload, UploadError } from "@/lib/storage";
 import { REQUIRED_DOCS, DOC_KINDS, APP_TYPES, ADMIN_ONLY_DOCS, type AppType, type DocKind } from "@/lib/constants";
 import { trackingCode } from "@/lib/utils";
 import { actorLabel, logEvent } from "@/lib/applications";
 
 const MAX_FILES = 12;
+export const maxDuration = 60;
 
 /**
  * Creates an application with its documents (multipart/form-data).
@@ -17,7 +18,7 @@ const MAX_FILES = 12;
 export async function POST(req: Request) {
   const user = await apiUser("STUDENT", "AGENT");
   if (!user) return unauthorized();
-  if (!rateLimit(req, "applications", 10)) return fail("تعداد درخواست‌ها زیاد است، کمی بعد تلاش کنید", 429);
+  if (!await rateLimit(req, "applications", 10)) return fail("تعداد درخواست‌ها زیاد است، کمی بعد تلاش کنید", 429);
 
   const form = await req.formData().catch(() => null);
   if (!form) return fail("فرم ارسالی معتبر نیست");
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
   const type = data.type as AppType;
   if (type === "ADMISSION" && !data.motherName) return fail("نام مادر را وارد کنید");
 
-  const files = form.getAll("files").filter((f): f is File => f instanceof File && f.size > 0);
+  const files = form.getAll("files").filter((f) => typeof f === "string" || f.size > 0);
   const kinds = form.getAll("kinds").map(String);
   if (files.length !== kinds.length) return fail("نوع هر مدرک را مشخص کنید");
   if (files.length > MAX_FILES) return fail(`حداکثر ${MAX_FILES} فایل قابل ارسال است`);
@@ -50,11 +51,11 @@ export async function POST(req: Request) {
   const saved: { kind: DocKind; storedName: string; mimeType: string; size: number; originalName: string }[] = [];
   try {
     for (let i = 0; i < files.length; i++) {
-      saved.push({ kind: kinds[i] as DocKind, ...(await saveUpload(files[i])) });
+      saved.push({ kind: kinds[i] as DocKind, ...(await saveUpload(await resolveUpload(files[i], user.id))) });
     }
   } catch (e) {
-    await Promise.all(saved.map((s) => deleteUpload(s.storedName)));
-    return fail(e instanceof UploadError ? `${files[saved.length]?.name}: ${e.message}` : "خطا در ذخیره فایل", 400);
+    await Promise.allSettled(saved.map((s) => deleteUpload(s.storedName)));
+    return fail(e instanceof UploadError ? e.message : "خطا در ذخیره فایل", 400);
   }
 
   const empty = (v?: string) => (v ? v : null);
@@ -82,6 +83,9 @@ export async function POST(req: Request) {
       agentId: user.role === "AGENT" ? user.id : null,
       documents: { create: saved },
     },
+  }).catch(async (error) => {
+    await Promise.allSettled(saved.map((s) => deleteUpload(s.storedName)));
+    throw error;
   });
   await logEvent(app.id, `${APP_TYPES[type].label} با ${saved.length} مدرک ثبت شد`, actorLabel(user));
   if (app.scholarshipPercent) {

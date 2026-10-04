@@ -240,6 +240,7 @@ export const fa = {
     language: "زبان",
     minPrice: "حداقل شهریه سالانه (دلار)",
     maxPrice: "حداکثر شهریه سالانه (دلار)",
+    exportPdf: "دریافت PDF نتایج",
     searchPlaceholder: "جستجو در رشته، دانشگاه یا دانشکده...",
     apply: "نمایش رشته‌ها",
     count: "{count} رشته پیدا شد",

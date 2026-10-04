@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Briefcase, GraduationCap, Menu, Moon, Sun, UserRound, X } from "lucide-react";
@@ -43,13 +43,14 @@ export function ThemeToggle({ className }: { className?: string }) {
 /** Switches fa ⇄ en through the `lang` cookie and re-renders the server components. */
 export function LanguageToggle({ className }: { className?: string }) {
   const { locale, t } = useLocale();
-  const router = useRouter();
   return (
     <button
       type="button"
       onClick={() => {
         document.cookie = `${LOCALE_COOKIE}=${locale === "fa" ? "en" : "fa"}; path=/; max-age=31536000; samesite=lax`;
-        router.refresh();
+        // Each language is a separate prerendered copy; a full reload also drops pages the router
+        // already prefetched in the old language.
+        window.location.reload();
       }}
       aria-label={t.nav.switchLangLabel}
       className={cn("grid h-10 min-w-10 place-items-center rounded-full bg-navy-950 px-3 text-xs font-black text-white transition hover:scale-105", className)}
@@ -98,7 +99,7 @@ export function SiteHeader() {
       <div
         className={cn(
           "mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 rounded-full border px-3 transition-all duration-300 sm:px-4",
-          "border-white/70 bg-surface/80 backdrop-blur-xl dark:border-white/10",
+          "border-white/70 bg-surface/90 backdrop-blur-md dark:border-white/10",
           scrolled || open ? "shadow-lift" : "shadow-soft",
         )}
       >

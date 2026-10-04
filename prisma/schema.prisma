@@ -5,6 +5,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model RateLimit {
+  key       String   @id
+  count     Int      @default(1)
+  expiresAt DateTime
+  @@index([expiresAt])
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")

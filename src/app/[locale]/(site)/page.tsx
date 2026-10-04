@@ -25,11 +25,12 @@ import { SITE } from "@/lib/constants";
 import { getDict } from "@/lib/i18n/server";
 import { calculatorPrograms, featuredUniversities, marqueeUniversities, scholarshipExample } from "@/lib/programs";
 
-// Rendered per request so the build never needs a database connection.
-export const dynamic = "force-dynamic";
+// Prerendered (one copy per language) and refreshed at most hourly; admin edits refresh it immediately
+// via revalidateSite(). Without a database at build time the fallback catalogue is used.
+export const revalidate = 3600;
 
-export async function generateMetadata(): Promise<Metadata> {
-  const { locale, t } = await getDict();
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale, t } = await getDict(params);
   return {
     title: { absolute: locale === "fa" ? `${SITE.name} | تحصیل در ترکیه، بورسیه و پذیرش دانشگاه` : `${t.common.brand} | Study in Türkiye` },
     description: t.hero.lead,
@@ -37,8 +38,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function HomePage() {
-  const { locale, t } = await getDict();
+export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale, t } = await getDict(params);
   const [marquee, calcPrograms, example, featured] = await Promise.all([
     marqueeUniversities(),
     calculatorPrograms(),

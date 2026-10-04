@@ -7,7 +7,7 @@ import { agentRegisterSchema, registerSchema, firstError } from "@/lib/validatio
 
 /** Registers a student, or an agent when `asAgent` is true (agents start as PENDING). */
 export async function POST(req: Request) {
-  if (!rateLimit(req, "register", 5)) return fail("تعداد درخواست‌ها زیاد است، کمی بعد تلاش کنید", 429);
+  if (!await rateLimit(req, "register", 5)) return fail("تعداد درخواست‌ها زیاد است، کمی بعد تلاش کنید", 429);
 
   const body = await req.json().catch(() => ({}));
   const asAgent = body?.asAgent === true;

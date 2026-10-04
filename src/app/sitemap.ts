@@ -4,8 +4,8 @@ import { safeRead } from "@/lib/universities";
 import { SERVICES } from "@/data/content";
 import { siteUrl } from "@/lib/utils";
 
-// Rendered per request so the build never needs a database connection.
-export const dynamic = "force-dynamic";
+// Regenerated at most hourly (and immediately after admin edits).
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();

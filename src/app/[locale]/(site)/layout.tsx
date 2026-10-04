@@ -1,10 +1,12 @@
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { JsonLd, organizationLd, websiteLd } from "@/components/seo/json-ld";
+import { localeFrom } from "@/lib/i18n/server";
 
-// No cookies are read here so marketing pages can be statically generated;
+// No cookies are read here (the language comes from the [locale] segment) so marketing pages are prerendered;
 // the header asks /api/auth/me for the login state on the client.
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
+export default async function SiteLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
+  const locale = await localeFrom(params);
   return (
     <>
       <a
@@ -15,7 +17,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       </a>
       <SiteHeader />
       <main id="main">{children}</main>
-      <SiteFooter />
+      <SiteFooter locale={locale} />
       <JsonLd data={[organizationLd(), websiteLd()]} />
     </>
   );

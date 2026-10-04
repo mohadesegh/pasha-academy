@@ -6,30 +6,49 @@ import { toFa } from "@/lib/utils";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
+// One shared scroll/resize listener, throttled to one run per frame, for every element still waiting to
+// be revealed. Elements leave the set as soon as they are shown, so a fully revealed page has no listener.
+const pending = new Set<() => void>();
+let frame = 0;
+const flush = () => {
+  frame = 0;
+  pending.forEach((check) => check());
+};
+const schedule = () => {
+  if (!frame) frame = requestAnimationFrame(flush);
+};
+function watchPosition(check: () => void) {
+  if (pending.size === 0) {
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+  }
+  pending.add(check);
+  return () => {
+    pending.delete(check);
+    if (pending.size === 0) {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    }
+  };
+}
+
 /**
- * True once the element has reached the screen. IntersectionObserver alone sometimes never fires
- * (fast scrolls, jumps, some browsers), which would leave content hidden for good, so a scroll/resize
- * position check backs it up.
+ * True once the element has reached (or been scrolled past) the screen. IntersectionObserver alone
+ * sometimes never fires (fast scrolls, jumps, some browsers), which would leave content hidden for
+ * good, so the shared position check above backs it up.
  */
 function useRevealed(ref: RefObject<Element | null>) {
   const inView = useInView(ref, { once: true, amount: 0.1 });
   const [reached, setReached] = useState(false);
   useEffect(() => {
-    if (reached) return;
+    if (inView || reached) return;
     const check = () => {
       const r = ref.current?.getBoundingClientRect();
-      if (r && r.top < window.innerHeight && r.bottom > 0) setReached(true);
-      // Already scrolled past it: show it too.
-      else if (r && r.bottom <= 0) setReached(true);
+      if (r && r.top < window.innerHeight) setReached(true);
     };
     check();
-    window.addEventListener("scroll", check, { passive: true });
-    window.addEventListener("resize", check);
-    return () => {
-      window.removeEventListener("scroll", check);
-      window.removeEventListener("resize", check);
-    };
-  }, [ref, reached]);
+    return watchPosition(check);
+  }, [ref, inView, reached]);
   return inView || reached;
 }
 

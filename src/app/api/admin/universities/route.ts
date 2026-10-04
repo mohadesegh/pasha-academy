@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidateSite } from "@/lib/revalidate";
 import { db } from "@/lib/db";
 import { apiUser } from "@/lib/auth";
 import { ok, fail, unauthorized } from "@/lib/http";
@@ -15,7 +15,6 @@ export async function POST(req: Request) {
   if (exists) return fail("این اسلاگ قبلا استفاده شده است", 409);
 
   const uni = await db.university.create({ data: { ...parsed.data, website: parsed.data.website || null, logo: parsed.data.logo || null } });
-  revalidatePath("/universities", "layout");
-  revalidatePath("/");
+  revalidateSite();
   return ok({ id: uni.id }, 201);
 }

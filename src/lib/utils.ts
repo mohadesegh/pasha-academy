@@ -43,7 +43,9 @@ export function splitList(value: string | null | undefined) {
 }
 
 export function siteUrl(path = "") {
-  let base = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000";
+  let base = process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` :
+      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
   if (!/^https?:\/\//i.test(base)) base = `https://${base}`;
   base = base.replace(/\/$/, "");
   return `${base}${path}`;

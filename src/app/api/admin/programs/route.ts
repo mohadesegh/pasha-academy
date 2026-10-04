@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { apiUser } from "@/lib/auth";
 import { ok, fail, unauthorized } from "@/lib/http";
 import { programSchema, firstError } from "@/lib/validation";
+import { revalidateSite } from "@/lib/revalidate";
 
 export async function POST(req: Request) {
   const user = await apiUser("ADMIN");
@@ -19,8 +20,7 @@ export async function POST(req: Request) {
   const program = await db.program.create({
     data: { ...rest, nameEn: nameEn || null, faculty: faculty || null, sample: false },
   });
-  revalidatePath("/programs");
-  revalidatePath("/scholarships");
+  revalidateSite();
   revalidatePath("/admin/programs");
   return ok({ id: program.id }, 201);
 }

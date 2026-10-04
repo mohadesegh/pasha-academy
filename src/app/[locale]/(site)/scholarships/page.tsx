@@ -11,18 +11,18 @@ import { fill, formatNum, formatUsd } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/server";
 import { PAGE_SIZE, programFilterOptions, scholarshipStats, searchPrograms, termlyTotal, type ProgramFilters as Filters } from "@/lib/programs";
 
-export const dynamic = "force-dynamic";
+// Filters live in the query string, so this page renders per request — its database reads are cached (see lib/programs.ts).
 
-export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await getDict();
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { t } = await getDict(params);
   return { title: t.scholarships.title, description: t.scholarships.lead, alternates: { canonical: "/scholarships" } };
 }
 
-type Props = { searchParams: Promise<Filters> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Filters> };
 
-export default async function ScholarshipsPage({ searchParams }: Props) {
+export default async function ScholarshipsPage({ params, searchParams }: Props) {
   const sp = await searchParams;
-  const { locale, t } = await getDict();
+  const { locale, t } = await getDict(params);
   const filters = { ...sp, scholarship: "1" };
   const order = sp.sort === "expensive" ? [{ scholarshipPrice: "desc" as const }] : sp.sort === "name" ? [{ name: "asc" as const }] : [{ scholarshipPrice: "asc" as const }];
   const [options, stats, result] = await Promise.all([programFilterOptions(), scholarshipStats(), searchPrograms(filters, order)]);

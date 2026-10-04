@@ -1,23 +1,30 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BedDouble, Building, CalendarDays, ExternalLink, GraduationCap, Languages, MapPin, Users, Wallet } from "lucide-react";
+import { BedDouble, Building, CalendarDays, ExternalLink, FileDown, GraduationCap, Languages, MapPin, Users, Wallet } from "lucide-react";
 import { PageHero } from "@/components/layout/page-hero";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { UniMonogram, UniversityCard } from "@/components/university/university-card";
 import { JsonLd, breadcrumbLd } from "@/components/seo/json-ld";
 import { db } from "@/lib/db";
-import { getUniversityBySlug } from "@/lib/universities";
+import { fallbackUniversity, getUniversityBySlug, safeRead } from "@/lib/universities";
+import { SEED_UNIVERSITIES } from "@/data/universities";
 import { formatNumber, siteUrl, splitList, toFa } from "@/lib/utils";
 
 type Props = { params: Promise<{ slug: string }> };
 
 export const revalidate = 3600;
+// The [locale] layout allows only its two languages; university slugs must stay open so a university
+// added in the admin panel gets its page on first visit (then cached like the rest).
+export const dynamicParams = true;
 
-// Nothing is prerendered at build time (so the build never needs a database);
-// each page is rendered on first request and then cached for `revalidate` seconds.
-export function generateStaticParams() {
-  return [];
+// Known universities are prerendered at build time (base catalogue if the database is unavailable).
+export async function generateStaticParams() {
+  const rows = await safeRead(
+    () => db.university.findMany({ where: { published: true }, select: { slug: true } }),
+    SEED_UNIVERSITIES.map((u) => ({ slug: u.slug })),
+  );
+  return rows.map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -36,11 +43,17 @@ export default async function UniversityPage({ params }: Props) {
   const u = await getUniversityBySlug((await params).slug);
   if (!u) notFound();
 
-  const related = await db.university.findMany({
-    where: { published: true, city: u.city, NOT: { id: u.id } },
-    take: 3,
-    orderBy: { featured: "desc" },
-  });
+  const related = await safeRead(
+    () =>
+      db.university.findMany({
+        where: { published: true, city: u.city, NOT: { id: u.id } },
+        take: 3,
+        orderBy: { featured: "desc" },
+      }),
+    SEED_UNIVERSITIES.filter((x) => x.city === u.city && x.slug !== u.slug)
+      .slice(0, 3)
+      .map((x) => fallbackUniversity(x.slug)!),
+  );
 
   const facts = [
     { icon: MapPin, label: "شهر", value: u.city },
@@ -116,6 +129,10 @@ export default async function UniversityPage({ params }: Props) {
                   <BedDouble className="h-4 w-4" />
                   درخواست خوابگاه نزدیک دانشگاه
                 </Link>
+                <a href={`/export/universities/${u.slug}?print=1`} target="_blank" rel="noopener" className="btn-outline mt-3 w-full">
+                  <FileDown className="h-4 w-4" />
+                  دریافت PDF رشته‌ها و شهریه‌ها
+                </a>
                 {u.website && (
                   <a href={u.website} target="_blank" rel="noopener noreferrer nofollow" className="mt-5 flex items-center justify-center gap-1.5 text-sm font-bold text-turquoise-600 hover:underline">
                     وب‌سایت رسمی دانشگاه

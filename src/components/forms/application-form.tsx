@@ -19,6 +19,7 @@ import {
   type DocKind,
 } from "@/lib/constants";
 import { cn, toFa } from "@/lib/utils";
+import { prepareUploads } from "@/lib/upload-client";
 
 type Uni = { id: string; name: string; city: string };
 
@@ -56,7 +57,7 @@ export function ApplicationForm({
   const extraKinds = useMemo(() => APPLICANT_DOC_KINDS.filter((k) => !requiredKinds.includes(k)), [requiredKinds]);
   const doneCount = requiredKinds.filter((k) => required[k]).length;
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
 
@@ -78,10 +79,18 @@ export function ApplicationForm({
       fd.append("kinds", x.kind);
     }
 
-    // XHR (not fetch) so we can show real upload progress.
+    setProgress(0);
+    try {
+      await prepareUploads(fd, setProgress);
+    } catch (error) {
+      setProgress(null);
+      setError(error instanceof Error ? error.message : "خطا در بارگذاری مدارک");
+      return;
+    }
+    // XHR provides progress for local storage as well.
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/api/applications");
-    xhr.upload.onprogress = (ev) => ev.lengthComputable && setProgress(Math.round((ev.loaded / ev.total) * 100));
+    xhr.upload.onprogress = (ev) => ev.lengthComputable && setProgress((current) => Math.max(current ?? 0, Math.round((ev.loaded / ev.total) * 100)));
     xhr.onload = () => {
       let json: { ok: boolean; data?: { id: string }; error?: string } = { ok: false };
       try {
@@ -101,7 +110,6 @@ export function ApplicationForm({
       setProgress(null);
       setError("خطا در ارتباط با سرور؛ اتصال اینترنت را بررسی کنید");
     };
-    setProgress(0);
     xhr.send(fd);
   }
 

@@ -3,10 +3,11 @@ import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { InstagramIcon } from "@/components/ui/brand-icons";
 import { Logo } from "@/components/ui/logo";
 import { SITE } from "@/lib/constants";
-import { getDict } from "@/lib/i18n/server";
+import { dictionaries } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/config";
 
-export async function SiteFooter() {
-  const { locale, t } = await getDict();
+export function SiteFooter({ locale }: { locale: Locale }) {
+  const t = dictionaries[locale];
   const explore = [
     { href: "/programs", label: t.nav.programs },
     { href: "/scholarships", label: t.nav.scholarships },

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { LogoMark } from "@/components/ui/logo";
 import { PortalNav, type NavItem } from "./portal-nav";
+import { FloatingDock } from "@/components/layout/floating-dock";
 import type { CurrentUser } from "@/lib/auth";
 
 const ROLE_LABEL = { ADMIN: "مدیریت", AGENT: "پورتال نمایندگان", STUDENT: "پنل دانشجو" } as const;
@@ -36,6 +37,7 @@ export function PortalShell({ user, nav, children }: { user: CurrentUser; nav: N
       <div className="lg:pr-72">
         <main className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-10">{children}</main>
       </div>
+      <FloatingDock />
     </div>
   );
 }

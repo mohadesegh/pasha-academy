@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidateSite } from "@/lib/revalidate";
 import { db } from "@/lib/db";
 import { apiUser } from "@/lib/auth";
 import { ok, fail, unauthorized, notFound } from "@/lib/http";
@@ -7,9 +7,7 @@ import { universitySchema, firstError } from "@/lib/validation";
 type Ctx = { params: Promise<{ id: string }> };
 
 function refresh() {
-  revalidatePath("/universities", "layout");
-  revalidatePath("/");
-  revalidatePath("/sitemap.xml");
+  revalidateSite();
 }
 
 export async function PATCH(req: Request, { params }: Ctx) {

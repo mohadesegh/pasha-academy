@@ -6,7 +6,7 @@ import { SESSION_COOKIE, sessionCookieOptions, signSession, homeForRole, type Ro
 import { loginSchema, firstError } from "@/lib/validation";
 
 export async function POST(req: Request) {
-  if (!rateLimit(req, "login", 10)) return fail("تعداد تلاش‌ها زیاد است، یک دقیقه دیگر تلاش کنید", 429);
+  if (!await rateLimit(req, "login", 10)) return fail("تعداد تلاش‌ها زیاد است، یک دقیقه دیگر تلاش کنید", 429);
 
   const parsed = loginSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return fail(firstError(parsed.error));

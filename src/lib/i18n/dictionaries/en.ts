@@ -241,6 +241,7 @@ export const en: Dict = {
     language: "Language",
     minPrice: "Min yearly tuition (USD)",
     maxPrice: "Max yearly tuition (USD)",
+    exportPdf: "Download results as PDF",
     searchPlaceholder: "Search programs, universities or faculties...",
     apply: "Show programs",
     count: "{count} programs found",

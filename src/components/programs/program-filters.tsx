@@ -1,8 +1,8 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
-import { Loader2, RotateCcw, Search, SlidersHorizontal } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { BookOpen, Building2, GraduationCap, Loader2, RotateCcw, Search, SlidersHorizontal } from "lucide-react";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { PROGRAM_DEGREES, PROGRAM_DEGREE_KEYS, PROGRAM_LANGUAGES, PROGRAM_LANGUAGE_KEYS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -12,7 +12,14 @@ type Options = {
   universities: { id: string; name: string; nameEn: string; city: string }[];
   cities: string[];
   faculties: string[];
+  names?: { name: string; nameEn: string | null }[];
 };
+
+const MAX_SUGGESTIONS = 8;
+const SUGGESTION_ICONS = { program: GraduationCap, university: Building2, faculty: BookOpen };
+
+/** Lower-cases and folds Arabic ي/ك into Persian ی/ک so either keyboard layout finds the same names. */
+const fold = (s: string) => s.toLowerCase().replace(/ي/g, "ی").replace(/ك/g, "ک");
 
 /**
  * URL-driven filters: every change rewrites the query string and the server page re-queries.
@@ -33,20 +40,75 @@ export function ProgramFilters({
   const [q, setQ] = useState(params.get("q") ?? "");
   const [min, setMin] = useState(params.get("min") ?? "");
   const [max, setMax] = useState(params.get("max") ?? "");
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+
+  // Everything the search box can match, in the visitor's language.
+  const candidates = useMemo(() => {
+    const label = (x: { name: string; nameEn: string | null }) => (locale === "fa" ? x.name : x.nameEn || x.name);
+    const list = [
+      ...(options.names ?? []).map((n) => ({ kind: "program" as const, text: label(n) })),
+      ...options.universities.map((u) => ({ kind: "university" as const, text: label(u) })),
+      ...options.faculties.map((f) => ({ kind: "faculty" as const, text: f })),
+    ];
+    const seen = new Set<string>();
+    return list.filter((c) => !seen.has(c.text) && seen.add(c.text)).map((c) => ({ ...c, folded: fold(c.text) }));
+  }, [options, locale]);
+
+  // Type-ahead: names starting with the typed text first, then names containing it.
+  const suggestions = useMemo(() => {
+    const needle = fold(q.trim());
+    if (!needle) return [];
+    const hits = candidates
+      .map((c) => ({ ...c, at: c.folded.indexOf(needle) }))
+      .filter((c) => c.at >= 0 && c.folded !== needle);
+    return [...hits.filter((c) => c.at === 0), ...hits.filter((c) => c.at > 0)].slice(0, MAX_SUGGESTIONS).map((c) => ({ ...c, len: needle.length }));
+  }, [q, candidates]);
+  const showSuggestions = open && suggestions.length > 0;
+
+  function pick(text: string) {
+    setQ(text);
+    setOpen(false);
+    setActive(-1);
+  }
+
+  function onSearchKey(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Escape") return setOpen(false);
+    if (!showSuggestions) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActive((i) => (i + 1) % suggestions.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActive((i) => (i <= 0 ? suggestions.length - 1 : i - 1));
+    } else if (e.key === "Enter" && active >= 0) {
+      e.preventDefault();
+      pick(suggestions[active].text);
+    }
+  }
+
+  // The query string we last asked for. `params` lags behind while a navigation is in flight, so
+  // building the next URL from it would drop a filter changed a moment earlier (e.g. the search text).
+  const target = useRef(params.toString());
+  useEffect(() => {
+    if (!pending) target.current = params.toString();
+  }, [params, pending]);
 
   function update(changes: Record<string, string>) {
-    const next = new URLSearchParams(params.toString());
+    const next = new URLSearchParams(target.current);
     for (const [k, v] of Object.entries(changes)) {
       if (v) next.set(k, v);
       else next.delete(k);
     }
     next.delete("page"); // any filter change starts from the first page
+    target.current = next.toString();
     start(() => router.replace(`${pathname}?${next.toString()}`, { scroll: false }));
   }
 
   // Debounce the free-text and price inputs.
   useEffect(() => {
-    if (q === (params.get("q") ?? "") && min === (params.get("min") ?? "") && max === (params.get("max") ?? "")) return;
+    const wanted = new URLSearchParams(target.current);
+    if (q === (wanted.get("q") ?? "") && min === (wanted.get("min") ?? "") && max === (wanted.get("max") ?? "")) return;
     const id = setTimeout(() => update({ q, min, max }), 400);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,6 +143,7 @@ export function ProgramFilters({
               setQ("");
               setMin("");
               setMax("");
+              target.current = "";
               start(() => router.replace(pathname, { scroll: false }));
             }}
             className="btn btn-sm bg-crimson-500 text-white hover:bg-crimson-600"
@@ -91,11 +154,61 @@ export function ProgramFilters({
         )}
       </div>
 
-      <label className="relative mb-4 block">
-        <span className="sr-only">{t.common.search}</span>
-        <Search className="pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-muted ltr:left-4 rtl:right-4" />
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t.programs.searchPlaceholder} className="input rounded-2xl py-4 ltr:pl-12 rtl:pr-12" />
-      </label>
+      <div className="relative mb-4">
+        <label className="relative block">
+          <span className="sr-only">{t.common.search}</span>
+          <Search className="pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-muted ltr:left-4 rtl:right-4" />
+          <input
+            value={q}
+            onChange={(e) => {
+              setQ(e.target.value);
+              setOpen(true);
+              setActive(-1);
+            }}
+            onFocus={() => setOpen(true)}
+            onBlur={() => setOpen(false)}
+            onKeyDown={onSearchKey}
+            placeholder={t.programs.searchPlaceholder}
+            className="input rounded-2xl py-4 ltr:pl-12 rtl:pr-12"
+            role="combobox"
+            aria-expanded={showSuggestions}
+            aria-controls="program-suggestions"
+            aria-autocomplete="list"
+            aria-activedescendant={showSuggestions && active >= 0 ? `program-suggestion-${active}` : undefined}
+            autoComplete="off"
+          />
+        </label>
+        {showSuggestions && (
+          <ul id="program-suggestions" role="listbox" className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-line bg-white py-2 shadow-xl">
+            {suggestions.map((s, i) => {
+              const Icon = SUGGESTION_ICONS[s.kind];
+              return (
+                <li
+                  key={s.text}
+                  id={`program-suggestion-${i}`}
+                  role="option"
+                  aria-selected={i === active}
+                  // mousedown (not click) so the choice lands before the input's blur closes the list
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    pick(s.text);
+                  }}
+                  onMouseEnter={() => setActive(i)}
+                  className={cn("flex cursor-pointer items-center gap-3 px-4 py-2.5 text-sm text-navy-800", i === active && "bg-navy-50")}
+                >
+                  <Icon className="h-4 w-4 shrink-0 text-gold-500" />
+                  <span className="min-w-0 flex-1 truncate">
+                    {s.text.slice(0, s.at)}
+                    <mark className="bg-transparent font-black text-navy-950">{s.text.slice(s.at, s.at + s.len)}</mark>
+                    {s.text.slice(s.at + s.len)}
+                  </span>
+                  {s.kind !== "program" && <span className="shrink-0 text-xs font-bold text-muted">{s.kind === "university" ? t.programs.university : t.programs.faculty}</span>}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {has("city") && options.cities.length > 1 && select("city", t.programs.city, options.cities.map((c) => ({ value: c, label: cityName(c, locale) })))}

@@ -6,6 +6,9 @@ import { SEED_UNIVERSITIES as universities, samplePrograms } from "../src/data/u
 const db = new PrismaClient();
 
 async function main() {
+  if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+    throw new Error("Demo seed is for development only. Use npm run db:bootstrap in production.");
+  }
   const adminEmail = (process.env.ADMIN_EMAIL ?? "admin@pasha-academy.com").toLowerCase();
   const adminPassword = process.env.ADMIN_PASSWORD ?? "Admin@12345";
 

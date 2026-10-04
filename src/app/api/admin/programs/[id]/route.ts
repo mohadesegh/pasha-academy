@@ -3,12 +3,12 @@ import { db } from "@/lib/db";
 import { apiUser } from "@/lib/auth";
 import { ok, fail, unauthorized, notFound } from "@/lib/http";
 import { programSchema, firstError } from "@/lib/validation";
+import { revalidateSite } from "@/lib/revalidate";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 function refresh() {
-  revalidatePath("/programs");
-  revalidatePath("/scholarships");
+  revalidateSite();
   revalidatePath("/admin/programs");
 }
 

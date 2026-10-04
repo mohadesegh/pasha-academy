@@ -1,4 +1,5 @@
 "use client";
+import { prepareUploads } from "@/lib/upload-client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -138,15 +139,21 @@ export function UploadMore({
     const fd = new FormData();
     fd.set("file", file);
     fd.set("kind", kind);
-    const res = await fetch(`/api/applications/${applicationId}/documents`, { method: "POST", body: fd });
-    const json = await res.json().catch(() => ({ ok: false, error: "خطای ارتباط با سرور" }));
-    setPending(false);
-    if (json.ok) {
-      setFile(null);
-      setMsg({ tone: "success", text: `«${DOC_KINDS[kind]}» با موفقیت بارگذاری شد` });
-      router.refresh();
-    } else {
-      setMsg({ tone: "error", text: json.error });
+    try {
+      await prepareUploads(fd);
+      const res = await fetch(`/api/applications/${applicationId}/documents`, { method: "POST", body: fd });
+      const json = await res.json().catch(() => ({ ok: false, error: "خطای ارتباط با سرور" }));
+      if (json.ok) {
+        setFile(null);
+        setMsg({ tone: "success", text: `«${DOC_KINDS[kind]}» با موفقیت بارگذاری شد` });
+        router.refresh();
+      } else {
+        setMsg({ tone: "error", text: json.error });
+      }
+    } catch (error) {
+      setMsg({ tone: "error", text: error instanceof Error ? error.message : "خطا در بارگذاری مدرک" });
+    } finally {
+      setPending(false);
     }
   }
 

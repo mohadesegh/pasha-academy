@@ -12,7 +12,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const doc = await db.document.findFirst({ where: { id, application: scopeFor(user) } });
   if (!doc) return new Response("Not found", { status: 404 });
 
-  let file: Buffer;
+  let file: ReadableStream<Uint8Array>;
   try {
     file = await readUpload(doc.storedName);
   } catch {
@@ -21,10 +21,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   const download = new URL(req.url).searchParams.has("download");
   const filename = encodeURIComponent(doc.originalName);
-  return new Response(new Uint8Array(file), {
+  // Stream the response so 5 MB documents do not hit Vercel's buffered response limit.
+  return new Response(file, {
     headers: {
       "Content-Type": doc.mimeType,
-      "Content-Length": String(file.length),
       "Content-Disposition": `${download ? "attachment" : "inline"}; filename*=UTF-8''${filename}`,
       "Cache-Control": "private, no-store",
       "X-Content-Type-Options": "nosniff",

@@ -95,13 +95,19 @@ export function Hero() {
           {[100, 78, 56].map((size, i) => (
             <motion.div
               key={size}
-              className="absolute inset-0 m-auto rounded-full border border-gold-400/30 dark:border-gold-400/20"
+              className="absolute inset-0 m-auto"
               style={{ width: `${size}%`, height: `${size}%` }}
               initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1, rotate: i % 2 ? -360 : 360 }}
-              transition={{ opacity: { duration: 0.8, delay: 0.2 + i * 0.1 }, scale: { duration: 0.8, delay: 0.2 + i * 0.1 }, rotate: { duration: 50 + i * 15, repeat: Infinity, ease: "linear" } }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 + i * 0.1 }}
             >
-              <span className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-gold-400 shadow-[0_0_16px_rgba(222,175,82,0.9)]" />
+              {/* The endless spin runs as a CSS animation (compositor thread), not a per-frame JS tween. */}
+              <div
+                className="orbit-spin h-full w-full rounded-full border border-gold-400/30 dark:border-gold-400/20"
+                style={{ animationDuration: `${50 + i * 15}s`, animationDirection: i % 2 ? "reverse" : "normal" }}
+              >
+                <span className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-gold-400 shadow-[0_0_16px_rgba(222,175,82,0.9)]" />
+              </div>
             </motion.div>
           ))}
           <motion.div
@@ -121,7 +127,7 @@ export function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: c.delay, ease }}
             >
-              <div className="animate-float flex items-center gap-2.5 rounded-2xl border border-white/70 bg-surface/90 px-4 py-3 shadow-lift backdrop-blur dark:border-white/10" style={{ animationDelay: `${c.delay}s` }}>
+              <div className="animate-float flex items-center gap-2.5 rounded-2xl border border-white/70 bg-surface px-4 py-3 shadow-lift dark:border-white/10" style={{ animationDelay: `${c.delay}s` }}>
                 <span className="grid h-9 w-9 place-items-center rounded-xl bg-navy-950 text-gold-300">
                   <c.icon className="h-4 w-4" />
                 </span>

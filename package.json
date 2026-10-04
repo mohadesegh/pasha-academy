@@ -2,12 +2,20 @@
   "name": "pasha-academy",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "vercel-build": "node scripts/vercel-build.mjs",
+    "setup:secrets": "node scripts/setup-secrets.mjs",
+    "db:deploy": "prisma migrate deploy",
+    "db:bootstrap": "tsx prisma/bootstrap.ts",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "test:storage": "node --conditions=react-server --import tsx --test tests/storage.test.ts",
     "db:push": "prisma db push",
     "db:seed": "tsx --env-file=.env prisma/seed.ts",
     "setup": "prisma db push && tsx --env-file=.env prisma/seed.ts"
@@ -17,6 +25,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "@vercel/blob": "^2.8.0",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "framer-motion": "^13.4.4",

@@ -63,7 +63,7 @@ export function FloatingDock() {
 
   return (
     <>
-      <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-3 z-40 flex flex-col gap-2.5 sm:bottom-5 sm:right-5 sm:gap-3">
+      <div className="floating-dock fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-3 z-40 flex flex-col gap-2.5 sm:bottom-5 sm:right-5 sm:gap-3">
         <a
           href={`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(t.common.whatsappGeneral)}`}
           target="_blank"
@@ -88,7 +88,7 @@ export function FloatingDock() {
       </div>
 
       {showInstall && (
-        <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-3 z-40 sm:bottom-5 sm:left-5">
+        <div className="floating-dock fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-3 z-40 sm:bottom-5 sm:left-5">
           {hint && (
             <div role="status" className="mb-3 w-64 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-[#06142a] p-4 text-xs leading-6 text-white shadow-lift">
               <p className="flex items-center gap-2 font-black">

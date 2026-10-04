@@ -2,10 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Vazirmatn } from "next/font/google";
 import { SITE } from "@/lib/constants";
 import { siteUrl } from "@/lib/utils";
-import { LocaleProvider } from "@/components/i18n/locale-provider";
-import { FloatingDock } from "@/components/layout/floating-dock";
-import { THEME_STORAGE_KEY, dirFor } from "@/lib/i18n/config";
-import { getLocale } from "@/lib/i18n/server";
+import { THEME_STORAGE_KEY } from "@/lib/i18n/config";
 import "./globals.css";
 
 const vazir = Vazirmatn({
@@ -66,18 +63,16 @@ export const viewport: Viewport = {
 // Runs before paint so a saved dark theme never flashes light.
 const themeScript = `try{if(localStorage.getItem("${THEME_STORAGE_KEY}")==="dark")document.documentElement.classList.add("dark")}catch(e){}`;
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const locale = await getLocale();
+// Static on purpose (no cookies/headers): the language is set by app/[locale]/layout.tsx,
+// so the public pages can be prerendered.
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang={locale} dir={dirFor(locale)} className={vazir.variable} suppressHydrationWarning>
+    <html lang="fa" dir="rtl" className={vazir.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-dvh font-sans">
-        <LocaleProvider locale={locale}>
-          {children}
-          <FloatingDock />
-        </LocaleProvider>
+        {children}
       </body>
     </html>
   );

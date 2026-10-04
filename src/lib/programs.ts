@@ -1,5 +1,6 @@
 import "server-only";
 import type { Prisma } from "@prisma/client";
+import { unstable_cache } from "next/cache";
 import { db } from "./db";
 import { safeRead } from "./universities";
 import { PROGRAM_DEGREE_KEYS, PROGRAM_LANGUAGE_KEYS } from "./constants";
@@ -7,6 +8,18 @@ import { logoFor } from "./university-logos";
 import { SEED_UNIVERSITIES, samplePrograms } from "@/data/universities";
 
 export const PAGE_SIZE = 25;
+
+/** Cache tag for everything derived from universities/programs; admin edits call revalidateSite() to flush it. */
+export const CATALOG_TAG = "catalog";
+
+/**
+ * Cached database read for pages that render per request (filters in the query string).
+ * The key must describe every input. A failed read throws out of the cache, so a database
+ * outage is never cached: safeRead() falls back for that one request only.
+ */
+function cachedRead<T>(key: unknown[], read: () => Promise<T>) {
+  return unstable_cache(read, key.map((k) => JSON.stringify(k ?? null)), { revalidate: 3600, tags: [CATALOG_TAG] })();
+}
 
 /** Total cost of a degree paid term by term, including one preparatory language year. */
 export function termlyTotal(p: { tuition: number; durationYears: number; prepFee: number | null }) {
@@ -71,56 +84,151 @@ const programSelect = {
 
 export type ProgramRow = Prisma.ProgramGetPayload<{ select: typeof programSelect }>;
 
+/**
+ * The sample catalogue in the database's row shape, for when the database is unreachable or has no
+ * programs yet — the same fallback the calculator uses, so the list is never empty. University ids are slugs.
+ */
+const sampleRows = (): ProgramRow[] =>
+  SEED_UNIVERSITIES.flatMap((u) =>
+    samplePrograms(u).map((p, i) => ({
+      ...p,
+      id: `${u.slug}-${i}`,
+      university: { id: u.slug, slug: u.slug, name: u.name, nameEn: u.nameEn, city: u.city, color: u.color, website: u.website },
+    })),
+  );
+
+/** In-memory equivalent of buildProgramWhere + orderBy over the sample catalogue. */
+function filterSamplePrograms(f: ProgramFilters, order: Prisma.ProgramOrderByWithRelationInput[]) {
+  const q = f.q?.trim().toLowerCase();
+  const min = Number(f.min);
+  const max = Number(f.max);
+  const all = sampleRows().filter((p) => {
+    if (f.city && p.university.city !== f.city) return false;
+    if (f.university && p.university.id !== f.university) return false;
+    if (f.degree && (PROGRAM_DEGREE_KEYS as string[]).includes(f.degree) && p.degree !== f.degree) return false;
+    if (f.language && (PROGRAM_LANGUAGE_KEYS as string[]).includes(f.language) && p.language !== f.language) return false;
+    if (f.faculty && p.faculty !== f.faculty) return false;
+    if (f.min && Number.isFinite(min) && p.tuition < min) return false;
+    if (f.max && Number.isFinite(max) && max > 0 && p.tuition > max) return false;
+    if (f.scholarship === "1" && p.scholarshipPrice == null) return false;
+    if (q && ![p.name, p.nameEn, p.faculty, p.university.name, p.university.nameEn].some((v) => v?.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  const [key, dir] = Object.entries(order[0] ?? { tuition: "asc" })[0] as [keyof ProgramRow, "asc" | "desc"];
+  all.sort((a, b) => {
+    const x = a[key], y = b[key];
+    const d = typeof x === "string" && typeof y === "string" ? x.localeCompare(y, "fa") : Number(x ?? 0) - Number(y ?? 0);
+    return dir === "desc" ? -d : d;
+  });
+  return all;
+}
+
+function searchSamplePrograms(f: ProgramFilters, order: Prisma.ProgramOrderByWithRelationInput[]) {
+  const all = filterSamplePrograms(f, order);
+  const pages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
+  const page = Math.min(Math.max(1, Number(f.page) || 1), pages);
+  return { rows: all.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE), total: all.length, page, pages };
+}
+
+/** False when the database is unreachable or holds no visible programs — the public lists then use the sample catalogue. */
+function hasPrograms() {
+  return safeRead(
+    () => cachedRead(["hasPrograms"], async () => (await db.program.count({ where: { active: true, university: { published: true } } })) > 0),
+    false,
+  );
+}
+
+const defaultOrder = (f: ProgramFilters): Prisma.ProgramOrderByWithRelationInput[] =>
+  f.sort === "expensive" ? [{ tuition: "desc" }] : f.sort === "name" ? [{ name: "asc" }] : [{ tuition: "asc" }];
+
+/** Most rows a single PDF export may hold. */
+export const EXPORT_LIMIT = 1000;
+
+/** Every program matching the filters (no paging, capped at EXPORT_LIMIT) for the PDF export, plus the uncapped total. */
+export async function exportPrograms(f: ProgramFilters) {
+  const where = buildProgramWhere(f);
+  const order = defaultOrder(f);
+  if (!(await hasPrograms())) {
+    const all = filterSamplePrograms(f, order);
+    return { rows: all.slice(0, EXPORT_LIMIT), total: all.length };
+  }
+  return safeRead(
+    () => cachedRead(["exportPrograms", where, order], async () => {
+      const [rows, total] = await Promise.all([
+        db.program.findMany({ where, select: programSelect, orderBy: order, take: EXPORT_LIMIT }),
+        db.program.count({ where }),
+      ]);
+      return { rows, total };
+    }),
+    { rows: [] as ProgramRow[], total: 0 },
+  );
+}
+
 export async function searchPrograms(f: ProgramFilters, orderBy?: Prisma.ProgramOrderByWithRelationInput[]) {
   const where = buildProgramWhere(f);
   const page = Math.max(1, Number(f.page) || 1);
-  const order: Prisma.ProgramOrderByWithRelationInput[] =
-    orderBy ??
-    (f.sort === "expensive" ? [{ tuition: "desc" }] : f.sort === "name" ? [{ name: "asc" }] : [{ tuition: "asc" }]);
+  const order = orderBy ?? defaultOrder(f);
+  if (!(await hasPrograms())) return searchSamplePrograms(f, order);
   return safeRead(
-    async () => {
+    () => cachedRead(["searchPrograms", where, order, page], async () => {
       const [rows, total] = await Promise.all([
         db.program.findMany({ where, select: programSelect, orderBy: order, skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE }),
         db.program.count({ where }),
       ]);
       return { rows, total, page, pages: Math.max(1, Math.ceil(total / PAGE_SIZE)) };
-    },
+    }),
     { rows: [] as ProgramRow[], total: 0, page: 1, pages: 1 },
   );
 }
 
 /** Options for the filter dropdowns (only values that actually exist). */
 export async function programFilterOptions() {
+  if (!(await hasPrograms())) {
+    const universities = SEED_UNIVERSITIES.map((u) => ({ id: u.slug, name: u.name, nameEn: u.nameEn, city: u.city })).sort((a, b) => a.name.localeCompare(b.name, "fa"));
+    return {
+      universities,
+      cities: [...new Set(universities.map((u) => u.city))],
+      faculties: [...new Set(sampleRows().flatMap((p) => p.faculty ?? []))].sort((a, b) => a.localeCompare(b, "fa")),
+      names: [...new Map(sampleRows().map((p) => [p.name, { name: p.name, nameEn: p.nameEn }])).values()],
+    };
+  }
   return safeRead(
-    async () => {
-      const [universities, faculties] = await Promise.all([
+    () => cachedRead(["programFilterOptions"], async () => {
+      const [universities, faculties, names] = await Promise.all([
         db.university.findMany({
           where: { published: true, offerings: { some: { active: true } } },
           select: { id: true, name: true, nameEn: true, city: true },
           orderBy: { name: "asc" },
         }),
         db.program.findMany({ where: { active: true, faculty: { not: null } }, select: { faculty: true }, distinct: ["faculty"], orderBy: { faculty: "asc" } }),
+        // Distinct program names feed the search box's type-ahead suggestions.
+        db.program.findMany({ where: { active: true, university: { published: true } }, select: { name: true, nameEn: true }, distinct: ["name"], orderBy: { name: "asc" } }),
       ]);
       return {
         universities,
         cities: [...new Set(universities.map((u) => u.city))],
         faculties: faculties.map((f) => f.faculty!).filter(Boolean),
+        names,
       };
-    },
-    { universities: [], cities: [], faculties: [] as string[] },
+    }),
+    { universities: [], cities: [], faculties: [] as string[], names: [] as { name: string; nameEn: string | null }[] },
   );
 }
 
 export async function scholarshipStats() {
+  if (!(await hasPrograms())) {
+    const seats = sampleRows().filter((p) => p.scholarshipPrice != null);
+    return { seats: seats.length, universities: new Set(seats.map((p) => p.university.id)).size, from: Math.min(...seats.map((p) => p.scholarshipPrice!)) };
+  }
   return safeRead(
-    async () => {
+    () => cachedRead(["scholarshipStats"], async () => {
       const where = { active: true, scholarshipPrice: { not: null }, university: { published: true } };
       const [agg, unis] = await Promise.all([
         db.program.aggregate({ where, _count: true, _min: { scholarshipPrice: true } }),
         db.program.findMany({ where, select: { universityId: true }, distinct: ["universityId"] }),
       ]);
       return { seats: agg._count, universities: unis.length, from: agg._min.scholarshipPrice ?? 0 };
-    },
+    }),
     { seats: 0, universities: 0, from: 0 },
   );
 }

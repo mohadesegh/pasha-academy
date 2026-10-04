@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { apiUser } from "@/lib/auth";
 import { ok, fail, unauthorized, notFound } from "@/lib/http";
 import { docKindSchema } from "@/lib/validation";
-import { saveUpload, UploadError } from "@/lib/storage";
+import { saveUpload, resolveUpload, deleteUpload, UploadError } from "@/lib/storage";
 import { ADMIN_ONLY_DOCS, DOC_KINDS, type DocKind } from "@/lib/constants";
 import { actorLabel, findApplicationFor, logEvent } from "@/lib/applications";
 
@@ -19,7 +19,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const form = await req.formData().catch(() => null);
   const file = form?.get("file");
   const kind = docKindSchema.safeParse(form?.get("kind"));
-  if (!(file instanceof File) || file.size === 0) return fail("فایلی انتخاب نشده است");
+  if (!file || (file instanceof File && file.size === 0)) return fail("فایلی انتخاب نشده است");
   if (!kind.success) return fail("نوع مدرک معتبر نیست");
   const docKind = kind.data as DocKind;
 
@@ -30,10 +30,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (!isAdmin && closed) return fail("این پرونده بسته شده و امکان افزودن مدرک ندارد");
 
   try {
-    const saved = await saveUpload(file);
+    const saved = await saveUpload(await resolveUpload(file, user.id));
     const issued = isAdmin && ADMIN_ONLY_DOCS.includes(docKind);
     const doc = await db.document.create({
       data: { applicationId: app.id, kind: docKind, ...saved, ...(issued ? { status: "APPROVED", reviewedAt: new Date() } : {}) },
+    }).catch(async (error) => {
+      await deleteUpload(saved.storedName);
+      throw error;
     });
     await logEvent(
       app.id,

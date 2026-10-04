@@ -82,6 +82,21 @@
   50% { transform: translateY(-12px); }
 }
 
+/* Hero orbit rings: endless rotation on the compositor (duration/direction set inline). */
+@keyframes orbit-spin {
+  to { transform: rotate(360deg); }
+}
+.orbit-spin {
+  position: relative;
+  animation: orbit-spin 60s linear infinite;
+  will-change: transform;
+}
+
+/* Respect "reduce motion" for the CSS loops too (marquee, rings, floating chips, pings). */
+@media (prefers-reduced-motion: reduce) {
+  .orbit-spin, .animate-marquee, .animate-float, .animate-ping { animation: none !important; }
+}
+
 /* Announcement slider progress bar */
 @keyframes announce-progress {
   from { width: 0; }
@@ -275,3 +290,91 @@
 .dark :is(.prose-fa p, .prose-fa ul) { color: rgb(241 235 223 / 0.8); }
 .dark .btn-navy { background-color: #1e3050; }
 .dark .btn-navy:hover { background-color: #27406a; }
+
+/* ---------------------------------------------------------------------------
+   Printable / PDF exports (app/[locale]/export/...)
+   --------------------------------------------------------------------------- */
+.export-root {
+  min-height: 100dvh;
+  background: #eef0f3;
+  color: #111827;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.export-page {
+  position: relative;
+  margin: 24px auto;
+  width: min(210mm, calc(100% - 24px));
+  background: #fff;
+  padding: 14mm;
+  box-shadow: 0 10px 30px -12px rgb(6 20 42 / 0.25);
+}
+.export-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.export-table th {
+  background: #06142a;
+  color: #fff;
+  font-weight: 800;
+  padding: 8px 10px;
+  text-align: start;
+  white-space: nowrap;
+}
+.export-table td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 7px 10px;
+  vertical-align: top;
+}
+/* Wide tables (many columns) still have to fit an A4 page. */
+.export-table-compact { font-size: 10.5px; }
+.export-table-compact :is(th, td) { padding-inline: 6px; }
+.export-table tbody tr:nth-child(even) td { background: #f8f5ee; }
+.export-table tr { break-inside: avoid; }
+.export-section-title {
+  margin: 18px 0 8px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #a7772c;
+}
+
+/* Watermark: fixed => repeated on every printed page; above the content, never blocks clicks. */
+.export-watermark {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.export-watermark-logo {
+  width: min(60vw, 420px);
+  opacity: 0.07;
+}
+.export-watermark-grid {
+  position: absolute;
+  inset: -20%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-content: space-around;
+  gap: 90px 40px;
+  transform: rotate(-28deg);
+  color: #06142a;
+  opacity: 0.07;
+  font-size: 15px;
+  font-weight: 900;
+  white-space: nowrap;
+  text-align: center;
+}
+
+@media print {
+  @page { size: A4; margin: 10mm; }
+  html, body, .export-root { background: #fff !important; }
+  .no-print, .floating-dock { display: none !important; }
+  .export-page { margin: 0; width: auto; padding: 0; box-shadow: none; }
+  .export-watermark-logo { width: 120mm; }
+  /* Repeat the table header on each printed page. */
+  .export-table thead { display: table-header-group; }
+}
