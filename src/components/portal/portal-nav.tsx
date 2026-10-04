@@ -67,11 +67,12 @@ export function PortalNav({ items, header, footer }: { items: NavItem[]; header:
       </aside>
 
       {/* Mobile top bar */}
-      <div className="sticky top-0 z-40 flex items-center justify-between bg-navy-950 px-4 py-3 lg:hidden">
-        {header}
+      {/* The drawer slides in from the right, so its trigger sits on the right in both directions. */}
+      <div className="sticky top-0 z-40 flex items-center justify-between bg-navy-950 px-4 py-3 ltr:flex-row-reverse lg:hidden">
         <button type="button" onClick={() => setOpen(true)} className="grid h-10 w-10 place-items-center text-white" aria-label="باز کردن منو">
           <Menu />
         </button>
+        {header}
       </div>
       <AnimatePresence>
         {open && (

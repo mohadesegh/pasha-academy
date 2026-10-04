@@ -8,6 +8,8 @@ function run(module, args, env = process.env) {
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
+// The Neon integration always provides POSTGRES_PRISMA_URL; accept it when DATABASE_URL is absent.
+process.env.DATABASE_URL ||= process.env.POSTGRES_PRISMA_URL || "";
 for (const key of ["DATABASE_URL", "AUTH_SECRET", "CRON_SECRET"]) {
   if (!process.env[key]) throw new Error(`Set ${key} in Vercel Settings > Environment Variables. See DEPLOYMENT.fa.md.`);
 }
