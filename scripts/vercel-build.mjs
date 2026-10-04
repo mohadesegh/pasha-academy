@@ -2,8 +2,8 @@ import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 
-function run(module, args) {
-  const result = spawnSync(process.execPath, [require.resolve(module), ...args], { stdio: "inherit" });
+function run(module, args, env = process.env) {
+  const result = spawnSync(process.execPath, [require.resolve(module), ...args], { stdio: "inherit", env });
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
@@ -23,6 +23,11 @@ if (!process.env.NEXT_PUBLIC_SITE_URL) {
 }
 run("prisma/build/index.js", ["generate"]);
 // Preview deployments must use a separate database, never the production database.
-run("prisma/build/index.js", ["migrate", "deploy"]);
+// Migrations use a direct connection. Session advisory locks leak through Neon's pooler and
+// then block every later build, so the lock is skipped; Vercel builds run one at a time.
+run("prisma/build/index.js", ["migrate", "deploy"], {
+  ...process.env, DATABASE_URL: process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL,
+  PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK: "1",
+});
 if (process.env.VERCEL_ENV === "production") run("tsx/cli", ["prisma/bootstrap.ts"]);
 run("next/dist/bin/next", ["build"]);

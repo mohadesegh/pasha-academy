@@ -1,0 +1,10 @@
+.env*
+!.env.example
+node_modules
+.next
+clean
+*.db
+*.db-journal
+storage/uploads/*
+!storage/uploads/.gitkeep
+*.tsbuildinfo
